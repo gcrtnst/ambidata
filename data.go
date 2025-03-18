@@ -39,6 +39,7 @@ type ChannelInfo struct {
 	D6         FieldInfo
 	D7         FieldInfo
 	D8         FieldInfo
+	Loc        Maybe[Location]
 	PhotoID    string
 	DevKeys    []string
 	Bd         string
