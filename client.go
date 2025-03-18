@@ -35,6 +35,10 @@ func (err *APIError) Error() string {
 	return b.String()
 }
 
+func (err *APIError) Unwrap() error {
+	return err.Err
+}
+
 type StatusCodeError struct {
 	StatusCode int
 }
