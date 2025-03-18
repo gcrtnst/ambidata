@@ -18,28 +18,23 @@ func TestAPIErrorError(t *testing.T) {
 		},
 		{
 			name: "EmptyMethod",
-			in:   &APIError{Path: "/", StatusCode: http.StatusNotFound},
-			want: `&ambidata.APIError{Method:"", Path:"/", StatusCode:404}`,
+			in:   &APIError{Path: "/", Err: mockError{}},
+			want: `&ambidata.APIError{Method:"", Path:"/", Err:ambidata.mockError{}}`,
 		},
 		{
 			name: "EmptyPath",
-			in:   &APIError{Method: "GET", StatusCode: http.StatusNotFound},
-			want: `&ambidata.APIError{Method:"GET", Path:"", StatusCode:404}`,
+			in:   &APIError{Method: "GET", Err: mockError{}},
+			want: `&ambidata.APIError{Method:"GET", Path:"", Err:ambidata.mockError{}}`,
 		},
 		{
 			name: "EmptyStatusCode",
 			in:   &APIError{Method: "GET", Path: "/"},
-			want: `&ambidata.APIError{Method:"GET", Path:"/", StatusCode:0}`,
+			want: `&ambidata.APIError{Method:"GET", Path:"/", Err:error(nil)}`,
 		},
 		{
 			name: "Normal",
-			in:   &APIError{Method: "GET", Path: "/", StatusCode: http.StatusNotFound},
-			want: "ambidata: GET /: 404 Not Found",
-		},
-		{
-			name: "UnknownStatusCode",
-			in:   &APIError{Method: "GET", Path: "/", StatusCode: 999},
-			want: "ambidata: GET /: 999",
+			in:   &APIError{Method: "GET", Path: "/", Err: mockError{}},
+			want: "ambidata: GET /: mock error",
 		},
 	}
 
@@ -49,4 +44,10 @@ func TestAPIErrorError(t *testing.T) {
 			t.Errorf("%s: expected %#v, got %#v", tc.name, tc.want, got)
 		}
 	}
+}
+
+type mockError struct{}
+
+func (err mockError) Error() string {
+	return "mock error"
 }

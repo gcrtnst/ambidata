@@ -14,13 +14,13 @@ type Config struct {
 }
 
 type APIError struct {
-	Method     string
-	Path       string
-	StatusCode int
+	Method string
+	Path   string
+	Err    error
 }
 
 func (err *APIError) Error() string {
-	if err == nil || err.Method == "" || err.Path == "" || err.StatusCode == 0 {
+	if err == nil || err.Method == "" || err.Path == "" || err.Err == nil {
 		return fmt.Sprintf("%#v", err)
 	}
 
@@ -31,14 +31,6 @@ func (err *APIError) Error() string {
 	b.WriteByte(' ')
 	b.WriteString(err.Path)
 	b.WriteString(": ")
-
-	statusCode := err.StatusCode
-	statusText := http.StatusText(statusCode)
-	b.WriteString(strconv.Itoa(statusCode))
-	if statusText != "" {
-		b.WriteByte(' ')
-		b.WriteString(statusText)
-	}
-
+	b.WriteString(err.Err.Error())
 	return b.String()
 }
