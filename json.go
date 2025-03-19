@@ -29,6 +29,15 @@ func (j *jsonRecvChannelAccess) ToChannelAccess() ChannelAccess {
 	}
 }
 
+type jsonRecvChannelAccessLv1 struct {
+	Ch       string `json:"ch"`
+	WriteKey string `json:"writeKey"`
+}
+
+func (j *jsonRecvChannelAccessLv1) ToChannelAccessLv1() ChannelAccessLv1 {
+	return ChannelAccessLv1(*j)
+}
+
 type jsonRecvChannelInfo struct {
 	Ch         string                      `json:"ch"`
 	User       string                      `json:"user"`

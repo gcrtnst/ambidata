@@ -33,6 +33,18 @@ func (m *Manager) GetDeviceChannel(ctx context.Context, devKey string) (ChannelA
 	return ret, nil
 }
 
+func (m *Manager) GetDeviceChannelLv1(ctx context.Context, devKey string) (ChannelAccessLv1, error) {
+	var j jsonRecvChannelAccessLv1
+	query := url.Values{"devKey": []string{devKey}, "level": []string{"1"}}
+	err := m.httpGetJSON(ctx, PathGetDeviceChannelLv1, query, &j)
+	if err != nil {
+		return ChannelAccessLv1{}, err
+	}
+
+	ret := j.ToChannelAccessLv1()
+	return ret, nil
+}
+
 func (m *Manager) httpGetJSON(ctx context.Context, path string, query url.Values, v any) error {
 	const key = "userKey"
 	val := m.UserKey

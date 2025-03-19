@@ -430,3 +430,171 @@ func TestManagerGetDeviceChannelErrJSON(t *testing.T) {
 		t.Errorf("err: expected %#v, got %#v", io.EOF.Error(), gotErr.Error())
 	}
 }
+
+func TestManagerGetDeviceChannelLv1Normal(t *testing.T) {
+	const inBody = `{"ch":"83601","writeKey":"52e2cd7ddbfe2fed"}`
+	const inUserKey = "4ef42dcecf7e7ceba2"
+	const inDevKey = "08:A9:0C:9E:E0:C3"
+	const wantLevel = "1"
+
+	wantRet := ChannelAccessLv1{
+		WriteKey: "52e2cd7ddbfe2fed",
+		Ch:       "83601",
+	}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var gotReq *http.Request
+	mux := http.NewServeMux()
+	mux.Handle("/", http.NotFoundHandler())
+	mux.HandleFunc("GET "+PathGetDeviceChannelLv1+"{$}", func(w http.ResponseWriter, r *http.Request) {
+		gotReq = r
+		w.Write([]byte(inBody))
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	m := &Manager{
+		UserKey: inUserKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotRet, gotErr := m.GetDeviceChannelLv1(ctx, inDevKey)
+	if gotErr != nil {
+		t.Fatalf("err: %v", gotErr)
+	}
+
+	if diff := cmp.Diff(wantRet, gotRet); diff != "" {
+		t.Errorf("ret: mismatch (-want, +got)\n%s", diff)
+	}
+
+	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
+		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
+	}
+
+	if gotQuery, err := url.ParseQuery(gotReq.URL.RawQuery); err != nil {
+		t.Errorf("request: query: %v", err)
+	} else {
+		if gotUserKey := gotQuery.Get("userKey"); gotUserKey != inUserKey {
+			t.Errorf("request: userKey: expected %#v, got %#v", inUserKey, gotUserKey)
+		}
+		if gotDevKey := gotQuery.Get("devKey"); gotDevKey != inDevKey {
+			t.Errorf("request: devKey: expected %#v, got %#v", inDevKey, gotDevKey)
+		}
+		if gotLevel := gotQuery.Get("level"); gotLevel != wantLevel {
+			t.Errorf("request: level: expected %#v, got %#v", wantLevel, gotLevel)
+		}
+	}
+}
+
+func TestManagerGetDeviceChannelLv1ErrCanceled(t *testing.T) {
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	cancel()
+
+	var handler http.HandlerFunc
+	handler = func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	m := &Manager{
+		UserKey: "4ef42dcecf7e7ceba2",
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	_, gotErr := m.GetDeviceChannelLv1(ctx, "08:A9:0C:9E:E0:C3")
+	if !errors.Is(gotErr, context.Canceled) {
+		t.Errorf("err: expected %#v, got %#v", context.Canceled.Error(), gotErr.Error())
+	}
+}
+
+func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
+	const wantMethod = "GET"
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	srv := httptest.NewServer(http.NotFoundHandler())
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	m := &Manager{
+		UserKey: "4ef42dcecf7e7ceba2",
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	_, gotErr := m.GetDeviceChannelLv1(ctx, "08:A9:0C:9E:E0:C3")
+	if gotAPIErr, ok := gotErr.(*APIError); !ok {
+		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
+	} else {
+		if gotAPIErr.Method != wantMethod {
+			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
+		}
+		if gotAPIErr.Path != PathGetChannelList {
+			t.Errorf("err.Path: expected %#v, got %#v", PathGetChannelList, gotAPIErr.Path)
+		}
+		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
+			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
+		} else if gotStatusErr.StatusCode != http.StatusNotFound {
+			t.Errorf("err.StatusCode: expected %d, got %d", http.StatusNotFound, gotStatusErr.StatusCode)
+		}
+	}
+}
+
+func TestManagerGetDeviceChannelLv1ErrJSON(t *testing.T) {
+	const wantMethod = "GET"
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var handler http.HandlerFunc
+	handler = func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	m := &Manager{
+		UserKey: "4ef42dcecf7e7ceba2",
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	_, gotErr := m.GetDeviceChannelLv1(ctx, "08:A9:0C:9E:E0:C3")
+	if gotAPIErr := (&APIError{}); !errors.As(gotErr, &gotAPIErr) {
+		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
+	} else {
+		if gotAPIErr.Method != wantMethod {
+			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
+		}
+		if gotAPIErr.Path != PathGetChannelList {
+			t.Errorf("err.Path: expected %#v, got %#v", PathGetChannelList, gotAPIErr.Path)
+		}
+	}
+	if !errors.Is(gotErr, io.EOF) {
+		t.Errorf("err: expected %#v, got %#v", io.EOF.Error(), gotErr.Error())
+	}
+}
