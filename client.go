@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	PathGetChannelList = "/api/v2/channels/"
+	PathGetChannelList   = "/api/v2/channels/"
+	PathGetDeviceChannel = "/api/v2/channels/"
 )
 
 var (

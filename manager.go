@@ -21,6 +21,18 @@ func (m *Manager) GetChannelList(ctx context.Context) ([]ChannelAccess, error) {
 	return ret, nil
 }
 
+func (m *Manager) GetDeviceChannel(ctx context.Context, devKey string) (ChannelAccess, error) {
+	var j jsonRecvChannelAccess
+	query := url.Values{"devKey": []string{devKey}}
+	err := m.httpGetJSON(ctx, PathGetDeviceChannel, query, &j)
+	if err != nil {
+		return ChannelAccess{}, err
+	}
+
+	ret := j.ToChannelAccess()
+	return ret, nil
+}
+
 func (m *Manager) httpGetJSON(ctx context.Context, path string, query url.Values, v any) error {
 	const key = "userKey"
 	val := m.UserKey
