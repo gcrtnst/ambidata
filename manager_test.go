@@ -326,7 +326,7 @@ func TestManagerGetDeviceChannelNormal(t *testing.T) {
 	}
 }
 
-func TestManagerGetDeviceChannelCanceled(t *testing.T) {
+func TestManagerGetDeviceChannelErrCanceled(t *testing.T) {
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	cancel()
 
