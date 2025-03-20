@@ -632,3 +632,118 @@ func TestManagerGetDeviceChannelLv1ErrJSON(t *testing.T) {
 		t.Errorf("err: expected %#v, got %#v", io.EOF.Error(), gotErr.Error())
 	}
 }
+
+func TestManagerDeleteDataNormal(t *testing.T) {
+	const inUserKey = "4ef42dcecf7e7ceba2"
+	const inCh = "83602"
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var gotReq *http.Request
+	mux := http.NewServeMux()
+	mux.Handle("/", http.NotFoundHandler())
+	mux.HandleFunc("DELETE /api/v2/channels/"+inCh+"/data", func(w http.ResponseWriter, r *http.Request) {
+		gotReq = r
+		w.WriteHeader(http.StatusOK)
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	m := &Manager{
+		UserKey: inUserKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotErr := m.DeleteData(ctx, inCh)
+	if gotErr != nil {
+		t.Fatalf("err: %v", gotErr)
+	}
+
+	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
+		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
+	}
+
+	if gotQuery, err := url.ParseQuery(gotReq.URL.RawQuery); err != nil {
+		t.Errorf("request: query: %v", err)
+	} else if gotUserKey := gotQuery.Get("userKey"); gotUserKey != inUserKey {
+		t.Errorf("request: userKey: expected %#v, got %#v", inUserKey, gotUserKey)
+	}
+}
+
+func TestManagerDeleteDataErrCanceled(t *testing.T) {
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	cancel()
+
+	var handler http.HandlerFunc
+	handler = func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	m := &Manager{
+		UserKey: "4ef42dcecf7e7ceba2",
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotErr := m.DeleteData(ctx, "83602")
+	if !errors.Is(gotErr, context.Canceled) {
+		t.Errorf("err: expected %#v, got %#v", context.Canceled.Error(), gotErr.Error())
+	}
+}
+
+func TestManagerDeleteDataErrStatus(t *testing.T) {
+	const inCh = "83602"
+	const wantMethod = "DELETE"
+	const wantPath = "/api/v2/channels/83602/data"
+	wantQuery := url.Values{}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	srv := httptest.NewServer(http.NotFoundHandler())
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	m := &Manager{
+		UserKey: "4ef42dcecf7e7ceba2",
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotErr := m.DeleteData(ctx, "83602")
+	if gotAPIErr, ok := gotErr.(*APIError); !ok {
+		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
+	} else {
+		if gotAPIErr.Method != wantMethod {
+			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
+		}
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
+		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
+		}
+		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
+			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
+		} else if gotStatusErr.StatusCode != http.StatusNotFound {
+			t.Errorf("err.StatusCode: expected %d, got %d", http.StatusNotFound, gotStatusErr.StatusCode)
+		}
+	}
+}

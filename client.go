@@ -108,6 +108,15 @@ func httpGet(ctx context.Context, cfg *Config, path string, query url.Values) (*
 	})
 }
 
+func httpDelete(ctx context.Context, cfg *Config, path string, query url.Values) (*http.Response, error) {
+	return httpDo(ctx, &httpRequest{
+		Config: cfg,
+		Method: "DELETE",
+		Path:   path,
+		Query:  query,
+	})
+}
+
 type httpRequest struct {
 	Config *Config
 	Method string

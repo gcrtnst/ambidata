@@ -2,6 +2,7 @@ package ambidata
 
 import (
 	"context"
+	"net/http"
 	"net/url"
 )
 
@@ -45,7 +46,27 @@ func (m *Manager) GetDeviceChannelLv1(ctx context.Context, devKey string) (Chann
 	return ret, nil
 }
 
+func (m *Manager) DeleteData(ctx context.Context, ch string) error {
+	path := "/api/v2/channels/" + url.PathEscape(ch) + "/data"
+	resp, err := m.httpDelete(ctx, path, nil)
+	if err != nil {
+		return err
+	}
+	_ = resp.Body.Close()
+	return nil
+}
+
 func (m *Manager) httpGetJSON(ctx context.Context, path string, query url.Values, v any) error {
+	query = m.ensureUserKey(query)
+	return httpGetJSON(ctx, m.Config, path, query, v)
+}
+
+func (m *Manager) httpDelete(ctx context.Context, path string, query url.Values) (*http.Response, error) {
+	query = m.ensureUserKey(query)
+	return httpDelete(ctx, m.Config, path, query)
+}
+
+func (m *Manager) ensureUserKey(query url.Values) url.Values {
 	const key = "userKey"
 	val := m.UserKey
 	if query == nil {
@@ -53,6 +74,5 @@ func (m *Manager) httpGetJSON(ctx context.Context, path string, query url.Values
 	} else {
 		query.Set(key, val)
 	}
-
-	return httpGetJSON(ctx, m.Config, path, query, v)
+	return query
 }
