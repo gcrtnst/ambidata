@@ -84,7 +84,7 @@ func TestManagerGetChannelListNormal(t *testing.T) {
 	var gotReq *http.Request
 	mux := http.NewServeMux()
 	mux.Handle("/", http.NotFoundHandler())
-	mux.HandleFunc("GET "+PathGetChannelList+"{$}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /api/v2/channels/{$}", func(w http.ResponseWriter, r *http.Request) {
 		gotReq = r
 		w.Write([]byte(inBody))
 	})
@@ -152,6 +152,7 @@ func TestManagerGetChannelListErrCanceled(t *testing.T) {
 
 func TestManagerGetChannelListErrStatus(t *testing.T) {
 	const wantMethod = "GET"
+	const wantPath = "/api/v2/channels/"
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -176,8 +177,8 @@ func TestManagerGetChannelListErrStatus(t *testing.T) {
 		if gotAPIErr.Method != wantMethod {
 			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
 		}
-		if gotAPIErr.Path != PathGetChannelList {
-			t.Errorf("err.Path: expected %#v, got %#v", PathGetChannelList, gotAPIErr.Path)
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
 		}
 		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
 			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
@@ -189,6 +190,7 @@ func TestManagerGetChannelListErrStatus(t *testing.T) {
 
 func TestManagerGetChannelListErrJSON(t *testing.T) {
 	const wantMethod = "GET"
+	const wantPath = "/api/v2/channels/"
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -218,8 +220,8 @@ func TestManagerGetChannelListErrJSON(t *testing.T) {
 		if gotAPIErr.Method != wantMethod {
 			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
 		}
-		if gotAPIErr.Path != PathGetChannelList {
-			t.Errorf("err.Path: expected %#v, got %#v", PathGetChannelList, gotAPIErr.Path)
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
 		}
 	}
 	if !errors.Is(gotErr, io.EOF) {
@@ -283,7 +285,7 @@ func TestManagerGetDeviceChannelNormal(t *testing.T) {
 	var gotReq *http.Request
 	mux := http.NewServeMux()
 	mux.Handle("/", http.NotFoundHandler())
-	mux.HandleFunc("GET "+PathGetDeviceChannel+"{$}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /api/v2/channels/{$}", func(w http.ResponseWriter, r *http.Request) {
 		gotReq = r
 		w.Write([]byte(inBody))
 	})
@@ -356,6 +358,7 @@ func TestManagerGetDeviceChannelErrCanceled(t *testing.T) {
 
 func TestManagerGetDeviceChannelErrStatus(t *testing.T) {
 	const wantMethod = "GET"
+	const wantPath = "/api/v2/channels/"
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -380,8 +383,8 @@ func TestManagerGetDeviceChannelErrStatus(t *testing.T) {
 		if gotAPIErr.Method != wantMethod {
 			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
 		}
-		if gotAPIErr.Path != PathGetChannelList {
-			t.Errorf("err.Path: expected %#v, got %#v", PathGetChannelList, gotAPIErr.Path)
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
 		}
 		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
 			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
@@ -393,6 +396,7 @@ func TestManagerGetDeviceChannelErrStatus(t *testing.T) {
 
 func TestManagerGetDeviceChannelErrJSON(t *testing.T) {
 	const wantMethod = "GET"
+	const wantPath = "/api/v2/channels/"
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -422,8 +426,8 @@ func TestManagerGetDeviceChannelErrJSON(t *testing.T) {
 		if gotAPIErr.Method != wantMethod {
 			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
 		}
-		if gotAPIErr.Path != PathGetChannelList {
-			t.Errorf("err.Path: expected %#v, got %#v", PathGetChannelList, gotAPIErr.Path)
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
 		}
 	}
 	if !errors.Is(gotErr, io.EOF) {
@@ -448,7 +452,7 @@ func TestManagerGetDeviceChannelLv1Normal(t *testing.T) {
 	var gotReq *http.Request
 	mux := http.NewServeMux()
 	mux.Handle("/", http.NotFoundHandler())
-	mux.HandleFunc("GET "+PathGetDeviceChannelLv1+"{$}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /api/v2/channels/{$}", func(w http.ResponseWriter, r *http.Request) {
 		gotReq = r
 		w.Write([]byte(inBody))
 	})
@@ -524,6 +528,7 @@ func TestManagerGetDeviceChannelLv1ErrCanceled(t *testing.T) {
 
 func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
 	const wantMethod = "GET"
+	const wantPath = "/api/v2/channels/"
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -548,8 +553,8 @@ func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
 		if gotAPIErr.Method != wantMethod {
 			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
 		}
-		if gotAPIErr.Path != PathGetChannelList {
-			t.Errorf("err.Path: expected %#v, got %#v", PathGetChannelList, gotAPIErr.Path)
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
 		}
 		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
 			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
@@ -561,6 +566,7 @@ func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
 
 func TestManagerGetDeviceChannelLv1ErrJSON(t *testing.T) {
 	const wantMethod = "GET"
+	const wantPath = "/api/v2/channels/"
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -590,8 +596,8 @@ func TestManagerGetDeviceChannelLv1ErrJSON(t *testing.T) {
 		if gotAPIErr.Method != wantMethod {
 			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
 		}
-		if gotAPIErr.Path != PathGetChannelList {
-			t.Errorf("err.Path: expected %#v, got %#v", PathGetChannelList, gotAPIErr.Path)
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
 		}
 	}
 	if !errors.Is(gotErr, io.EOF) {
