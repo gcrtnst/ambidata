@@ -30,6 +30,7 @@ type Config struct {
 type APIError struct {
 	Method string
 	Path   string
+	Query  url.Values
 	Err    error
 }
 
@@ -37,6 +38,7 @@ func (err *APIError) Error() string {
 	if err == nil || err.Method == "" || err.Path == "" || err.Err == nil {
 		return fmt.Sprintf("%#v", err)
 	}
+	q := err.Query
 
 	b := &strings.Builder{}
 	b.Grow(64)
@@ -44,6 +46,10 @@ func (err *APIError) Error() string {
 	b.WriteString(err.Method)
 	b.WriteByte(' ')
 	b.WriteString(err.Path)
+	if len(q) > 0 {
+		b.WriteByte('?')
+		b.WriteString(err.Query.Encode())
+	}
 	b.WriteString(": ")
 	b.WriteString(err.Err.Error())
 	return b.String()
@@ -85,6 +91,7 @@ func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values
 		return &APIError{
 			Method: "GET",
 			Path:   path,
+			Query:  filterQuery(query),
 			Err:    err,
 		}
 	}
@@ -151,10 +158,25 @@ func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
 		return nil, &APIError{
 			Method: hreq.Method,
 			Path:   hreq.URL.Path,
+			Query:  filterQuery(req.Query),
 			Err:    &StatusCodeError{StatusCode: resp.StatusCode},
 		}
 	}
 	return resp, nil
+}
+
+func filterQuery(query url.Values) url.Values {
+	f := url.Values{}
+	for k, v := range query {
+		switch k {
+		case "userKey":
+		case "readKey":
+		case "writeKey":
+		default:
+			f[k] = v
+		}
+	}
+	return f
 }
 
 func valueOrDefault[T comparable](v, def T) T {

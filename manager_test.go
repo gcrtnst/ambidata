@@ -153,6 +153,7 @@ func TestManagerGetChannelListErrCanceled(t *testing.T) {
 func TestManagerGetChannelListErrStatus(t *testing.T) {
 	const wantMethod = "GET"
 	const wantPath = "/api/v2/channels/"
+	wantQuery := url.Values{}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -180,6 +181,9 @@ func TestManagerGetChannelListErrStatus(t *testing.T) {
 		if gotAPIErr.Path != wantPath {
 			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
 		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
+		}
 		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
 			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
 		} else if gotStatusErr.StatusCode != http.StatusNotFound {
@@ -191,6 +195,7 @@ func TestManagerGetChannelListErrStatus(t *testing.T) {
 func TestManagerGetChannelListErrJSON(t *testing.T) {
 	const wantMethod = "GET"
 	const wantPath = "/api/v2/channels/"
+	wantQuery := url.Values{}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -222,6 +227,9 @@ func TestManagerGetChannelListErrJSON(t *testing.T) {
 		}
 		if gotAPIErr.Path != wantPath {
 			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
+		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
 		}
 	}
 	if !errors.Is(gotErr, io.EOF) {
@@ -357,8 +365,10 @@ func TestManagerGetDeviceChannelErrCanceled(t *testing.T) {
 }
 
 func TestManagerGetDeviceChannelErrStatus(t *testing.T) {
+	const inDevKey = "08:A9:0C:9E:E0:C3"
 	const wantMethod = "GET"
 	const wantPath = "/api/v2/channels/"
+	wantQuery := url.Values{"devKey": []string{inDevKey}}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -376,7 +386,7 @@ func TestManagerGetDeviceChannelErrStatus(t *testing.T) {
 		},
 	}
 
-	_, gotErr := m.GetDeviceChannel(ctx, "08:A9:0C:9E:E0:C3")
+	_, gotErr := m.GetDeviceChannel(ctx, inDevKey)
 	if gotAPIErr, ok := gotErr.(*APIError); !ok {
 		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
 	} else {
@@ -385,6 +395,9 @@ func TestManagerGetDeviceChannelErrStatus(t *testing.T) {
 		}
 		if gotAPIErr.Path != wantPath {
 			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
+		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
 		}
 		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
 			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
@@ -395,8 +408,10 @@ func TestManagerGetDeviceChannelErrStatus(t *testing.T) {
 }
 
 func TestManagerGetDeviceChannelErrJSON(t *testing.T) {
+	const inDevKey = "08:A9:0C:9E:E0:C3"
 	const wantMethod = "GET"
 	const wantPath = "/api/v2/channels/"
+	wantQuery := url.Values{"devKey": []string{inDevKey}}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -419,7 +434,7 @@ func TestManagerGetDeviceChannelErrJSON(t *testing.T) {
 		},
 	}
 
-	_, gotErr := m.GetDeviceChannel(ctx, "08:A9:0C:9E:E0:C3")
+	_, gotErr := m.GetDeviceChannel(ctx, inDevKey)
 	if gotAPIErr := (&APIError{}); !errors.As(gotErr, &gotAPIErr) {
 		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
 	} else {
@@ -428,6 +443,9 @@ func TestManagerGetDeviceChannelErrJSON(t *testing.T) {
 		}
 		if gotAPIErr.Path != wantPath {
 			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
+		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
 		}
 	}
 	if !errors.Is(gotErr, io.EOF) {
@@ -527,8 +545,10 @@ func TestManagerGetDeviceChannelLv1ErrCanceled(t *testing.T) {
 }
 
 func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
+	const inDevKey = "08:A9:0C:9E:E0:C3"
 	const wantMethod = "GET"
 	const wantPath = "/api/v2/channels/"
+	wantQuery := url.Values{"devKey": []string{inDevKey}, "level": []string{"1"}}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -546,7 +566,7 @@ func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
 		},
 	}
 
-	_, gotErr := m.GetDeviceChannelLv1(ctx, "08:A9:0C:9E:E0:C3")
+	_, gotErr := m.GetDeviceChannelLv1(ctx, inDevKey)
 	if gotAPIErr, ok := gotErr.(*APIError); !ok {
 		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
 	} else {
@@ -555,6 +575,9 @@ func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
 		}
 		if gotAPIErr.Path != wantPath {
 			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
+		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
 		}
 		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
 			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
@@ -565,8 +588,10 @@ func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
 }
 
 func TestManagerGetDeviceChannelLv1ErrJSON(t *testing.T) {
+	const inDevKey = "08:A9:0C:9E:E0:C3"
 	const wantMethod = "GET"
 	const wantPath = "/api/v2/channels/"
+	wantQuery := url.Values{"devKey": []string{inDevKey}, "level": []string{"1"}}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
@@ -589,7 +614,7 @@ func TestManagerGetDeviceChannelLv1ErrJSON(t *testing.T) {
 		},
 	}
 
-	_, gotErr := m.GetDeviceChannelLv1(ctx, "08:A9:0C:9E:E0:C3")
+	_, gotErr := m.GetDeviceChannelLv1(ctx, inDevKey)
 	if gotAPIErr := (&APIError{}); !errors.As(gotErr, &gotAPIErr) {
 		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
 	} else {
@@ -598,6 +623,9 @@ func TestManagerGetDeviceChannelLv1ErrJSON(t *testing.T) {
 		}
 		if gotAPIErr.Path != wantPath {
 			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
+		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
 		}
 	}
 	if !errors.Is(gotErr, io.EOF) {

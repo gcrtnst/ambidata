@@ -2,6 +2,7 @@ package ambidata
 
 import (
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -18,23 +19,28 @@ func TestAPIErrorError(t *testing.T) {
 		},
 		{
 			name: "EmptyMethod",
-			in:   &APIError{Path: "/", Err: mockError{}},
-			want: `&ambidata.APIError{Method:"", Path:"/", Err:ambidata.mockError{}}`,
+			in:   &APIError{Path: "/", Query: url.Values{"k": []string{"v"}}, Err: mockError{}},
+			want: `&ambidata.APIError{Method:"", Path:"/", Query:url.Values{"k":[]string{"v"}}, Err:ambidata.mockError{}}`,
 		},
 		{
 			name: "EmptyPath",
-			in:   &APIError{Method: "GET", Err: mockError{}},
-			want: `&ambidata.APIError{Method:"GET", Path:"", Err:ambidata.mockError{}}`,
+			in:   &APIError{Method: "GET", Query: url.Values{"k": []string{"v"}}, Err: mockError{}},
+			want: `&ambidata.APIError{Method:"GET", Path:"", Query:url.Values{"k":[]string{"v"}}, Err:ambidata.mockError{}}`,
+		},
+		{
+			name: "EmptyQuery",
+			in:   &APIError{Method: "GET", Path: "/", Err: mockError{}},
+			want: "ambidata: GET /: mock error",
 		},
 		{
 			name: "EmptyStatusCode",
-			in:   &APIError{Method: "GET", Path: "/"},
-			want: `&ambidata.APIError{Method:"GET", Path:"/", Err:error(nil)}`,
+			in:   &APIError{Method: "GET", Query: url.Values{"k": []string{"v"}}, Path: "/"},
+			want: `&ambidata.APIError{Method:"GET", Path:"/", Query:url.Values{"k":[]string{"v"}}, Err:error(nil)}`,
 		},
 		{
 			name: "Normal",
-			in:   &APIError{Method: "GET", Path: "/", Err: mockError{}},
-			want: "ambidata: GET /: mock error",
+			in:   &APIError{Method: "GET", Path: "/", Query: url.Values{"k": []string{"v"}}, Err: mockError{}},
+			want: "ambidata: GET /?k=v: mock error",
 		},
 	}
 
