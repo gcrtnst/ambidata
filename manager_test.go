@@ -708,7 +708,7 @@ func TestManagerDeleteDataErrCanceled(t *testing.T) {
 func TestManagerDeleteDataErrStatus(t *testing.T) {
 	const inCh = "83602"
 	const wantMethod = "DELETE"
-	const wantPath = "/api/v2/channels/83602/data"
+	const wantPath = "/api/v2/channels/" + inCh + "/data"
 	wantQuery := url.Values{}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
@@ -727,7 +727,7 @@ func TestManagerDeleteDataErrStatus(t *testing.T) {
 		},
 	}
 
-	gotErr := m.DeleteData(ctx, "83602")
+	gotErr := m.DeleteData(ctx, inCh)
 	if gotAPIErr, ok := gotErr.(*APIError); !ok {
 		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
 	} else {
