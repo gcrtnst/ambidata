@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"testing"
 	"time"
 
@@ -208,6 +209,470 @@ func TestFetcherGetChannelErrJSON(t *testing.T) {
 	}
 
 	_, gotErr := f.GetChannel(ctx)
+	if gotAPIErr := (&APIError{}); !errors.As(gotErr, &gotAPIErr) {
+		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
+	} else {
+		if gotAPIErr.Method != wantMethod {
+			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
+		}
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
+		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
+		}
+	}
+	if !errors.Is(gotErr, io.EOF) {
+		t.Errorf("err: expected %#v, got %#v", io.EOF.Error(), gotErr.Error())
+	}
+}
+
+func TestFetcherFetchRangeNormal(t *testing.T) {
+	const inN = 3
+	const inSkip = 1
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+	const inBody = `[{"created":"1970-01-01T02:00:00.000Z"},{"d1":101,"d2":102,"d3":103,"d4":104,"d5":105,"d6":106,"d7":107,"d8":108,"loc":[110,109],"cmnt":"111","hide":true,"created":"1970-01-01T01:00:00.000Z"}]`
+	wantN := strconv.Itoa(inN)
+	wantSkip := strconv.Itoa(inSkip)
+
+	wantRet := []Data{
+		{
+			Created: time.Date(1970, 1, 1, 2, 0, 0, 0, time.UTC),
+		},
+		{
+			Created: time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC),
+			D1:      Just(101.0),
+			D2:      Just(102.0),
+			D3:      Just(103.0),
+			D4:      Just(104.0),
+			D5:      Just(105.0),
+			D6:      Just(106.0),
+			D7:      Just(107.0),
+			D8:      Just(108.0),
+			Loc:     Just(Location{Lat: 109, Lng: 110}),
+			Cmnt:    "111",
+			Hide:    true,
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var gotReq *http.Request
+	mux := http.NewServeMux()
+	mux.Handle("/", http.NotFoundHandler())
+	mux.HandleFunc("GET /api/v2/channels/"+inCh+"/data", func(w http.ResponseWriter, r *http.Request) {
+		gotReq = r
+		w.Write([]byte(inBody))
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotRet, gotErr := f.FetchRange(ctx, inN, inSkip)
+	if gotErr != nil {
+		t.Fatalf("err: %v", gotErr)
+	}
+
+	if diff := cmp.Diff(wantRet, gotRet); diff != "" {
+		t.Errorf("ret: mismatch (-want, +got)\n%s", diff)
+	}
+
+	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
+		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
+	}
+
+	if gotQuery, err := url.ParseQuery(gotReq.URL.RawQuery); err != nil {
+		t.Errorf("request: query: %v", err)
+	} else {
+		if gotReadKey := gotQuery.Get("readKey"); gotReadKey != inReadKey {
+			t.Errorf("request: readKey: expected %#v, got %#v", inReadKey, gotReadKey)
+		}
+		if gotN := gotQuery.Get("n"); gotN != wantN {
+			t.Errorf("request: n: expected %#v, got %#v", wantN, gotN)
+		}
+		if gotSkip := gotQuery.Get("skip"); gotSkip != wantSkip {
+			t.Errorf("request: skip: expected %#v, got %#v", wantSkip, gotSkip)
+		}
+	}
+}
+
+func TestFetcherFetchRangeZeroN(t *testing.T) {
+	const inN = 0
+	const inSkip = 0
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+	const inBody = `[{"created":"1970-01-01T02:00:00.000Z"},{"d1":101,"d2":102,"d3":103,"d4":104,"d5":105,"d6":106,"d7":107,"d8":108,"loc":[110,109],"cmnt":"111","hide":true,"created":"1970-01-01T01:00:00.000Z"}]`
+	wantRet := []Data{}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var gotReq *http.Request
+	mux := http.NewServeMux()
+	mux.Handle("/", http.NotFoundHandler())
+	mux.HandleFunc("GET /api/v2/channels/"+inCh+"/data", func(w http.ResponseWriter, r *http.Request) {
+		gotReq = r
+		w.Write([]byte(inBody))
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotRet, gotErr := f.FetchRange(ctx, inN, inSkip)
+	if gotErr != nil {
+		t.Fatalf("err: %v", gotErr)
+	}
+
+	if diff := cmp.Diff(wantRet, gotRet); diff != "" {
+		t.Errorf("ret: mismatch (-want, +got)\n%s", diff)
+	}
+
+	if gotReq != nil {
+		t.Errorf("request: unexpected HTTP request received")
+	}
+}
+
+func TestFetcherFetchRangeNEqualSkip(t *testing.T) {
+	const inN = 1
+	const inSkip = 1
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+	const inBody = `[{"created":"1970-01-01T02:00:00.000Z"},{"d1":101,"d2":102,"d3":103,"d4":104,"d5":105,"d6":106,"d7":107,"d8":108,"loc":[110,109],"cmnt":"111","hide":true,"created":"1970-01-01T01:00:00.000Z"}]`
+	wantRet := []Data{}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var gotReq *http.Request
+	mux := http.NewServeMux()
+	mux.Handle("/", http.NotFoundHandler())
+	mux.HandleFunc("GET /api/v2/channels/"+inCh+"/data", func(w http.ResponseWriter, r *http.Request) {
+		gotReq = r
+		w.Write([]byte(inBody))
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotRet, gotErr := f.FetchRange(ctx, inN, inSkip)
+	if gotErr != nil {
+		t.Fatalf("err: %v", gotErr)
+	}
+
+	if diff := cmp.Diff(wantRet, gotRet); diff != "" {
+		t.Errorf("ret: mismatch (-want, +got)\n%s", diff)
+	}
+
+	if gotReq != nil {
+		t.Errorf("request: unexpected HTTP request received")
+	}
+}
+
+func TestFetcherFetchRangeOmitSkip(t *testing.T) {
+	const inN = 3
+	const inSkip = 0
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+	const inBody = `[{"created":"1970-01-01T02:00:00.000Z"},{"d1":101,"d2":102,"d3":103,"d4":104,"d5":105,"d6":106,"d7":107,"d8":108,"loc":[110,109],"cmnt":"111","hide":true,"created":"1970-01-01T01:00:00.000Z"}]`
+	wantN := strconv.Itoa(inN)
+
+	wantRet := []Data{
+		{
+			Created: time.Date(1970, 1, 1, 2, 0, 0, 0, time.UTC),
+		},
+		{
+			Created: time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC),
+			D1:      Just(101.0),
+			D2:      Just(102.0),
+			D3:      Just(103.0),
+			D4:      Just(104.0),
+			D5:      Just(105.0),
+			D6:      Just(106.0),
+			D7:      Just(107.0),
+			D8:      Just(108.0),
+			Loc:     Just(Location{Lat: 109, Lng: 110}),
+			Cmnt:    "111",
+			Hide:    true,
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var gotReq *http.Request
+	mux := http.NewServeMux()
+	mux.Handle("/", http.NotFoundHandler())
+	mux.HandleFunc("GET /api/v2/channels/"+inCh+"/data", func(w http.ResponseWriter, r *http.Request) {
+		gotReq = r
+		w.Write([]byte(inBody))
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotRet, gotErr := f.FetchRange(ctx, inN, inSkip)
+	if gotErr != nil {
+		t.Fatalf("err: %v", gotErr)
+	}
+
+	if diff := cmp.Diff(wantRet, gotRet); diff != "" {
+		t.Errorf("ret: mismatch (-want, +got)\n%s", diff)
+	}
+
+	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
+		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
+	}
+
+	if gotQuery, err := url.ParseQuery(gotReq.URL.RawQuery); err != nil {
+		t.Errorf("request: query: %v", err)
+	} else {
+		if gotReadKey := gotQuery.Get("readKey"); gotReadKey != inReadKey {
+			t.Errorf("request: readKey: expected %#v, got %#v", inReadKey, gotReadKey)
+		}
+		if gotN := gotQuery.Get("n"); gotN != wantN {
+			t.Errorf("request: n: expected %#v, got %#v", wantN, gotN)
+		}
+		if gotQuery.Has("skip") {
+			t.Errorf("request: skip: expected no skip parameter, got %#v", gotQuery.Get("skip"))
+		}
+	}
+}
+
+func TestFetcherFetchRangeErrNegativeN(t *testing.T) {
+	const inN = -1
+	const inSkip = 0
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+	const wantErr = "ambidata: (*Fetcher).FetchRange: n and skip must be non-negative (n=-1, skip=0)"
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var handler http.HandlerFunc
+	handler = func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	_, gotErr := f.FetchRange(ctx, inN, inSkip)
+	if gotErr == nil || gotErr.Error() != wantErr {
+		t.Errorf(`err: expected "%s", got "%v"`, wantErr, gotErr)
+	}
+}
+
+func TestFetcherFetchRangeErrNegativeSkip(t *testing.T) {
+	const inN = 1
+	const inSkip = -1
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+	const wantErr = "ambidata: (*Fetcher).FetchRange: n and skip must be non-negative (n=1, skip=-1)"
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var handler http.HandlerFunc
+	handler = func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	_, gotErr := f.FetchRange(ctx, inN, inSkip)
+	if gotErr == nil || gotErr.Error() != wantErr {
+		t.Errorf(`err: expected "%s", got "%v"`, wantErr, gotErr)
+	}
+}
+
+func TestFetcherFetchRangeErrCanceled(t *testing.T) {
+	const inN = 3
+	const inSkip = 1
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	cancel()
+
+	var handler http.HandlerFunc
+	handler = func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	_, gotErr := f.FetchRange(ctx, inN, inSkip)
+	if !errors.Is(gotErr, context.Canceled) {
+		t.Errorf("err: expected %#v, got %#v", context.Canceled.Error(), gotErr.Error())
+	}
+}
+
+func TestFetcherFetchRangeErrStatus(t *testing.T) {
+	const inN = 3
+	const inSkip = 1
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+	const wantMethod = "GET"
+	const wantPath = "/api/v2/channels/83601/data"
+	wantQuery := url.Values{
+		"n":    []string{strconv.Itoa(inN)},
+		"skip": []string{strconv.Itoa(inSkip)},
+	}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	srv := httptest.NewServer(http.NotFoundHandler())
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	_, gotErr := f.FetchRange(ctx, inN, inSkip)
+	if gotAPIErr, ok := gotErr.(*APIError); !ok {
+		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
+	} else {
+		if gotAPIErr.Method != wantMethod {
+			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
+		}
+		if gotAPIErr.Path != wantPath {
+			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
+		}
+		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
+			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
+		}
+		if gotStatusErr, ok := gotAPIErr.Err.(*StatusCodeError); !ok {
+			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
+		} else if gotStatusErr.StatusCode != http.StatusNotFound {
+			t.Errorf("err.StatusCode: expected %d, got %d", http.StatusNotFound, gotStatusErr.StatusCode)
+		}
+	}
+}
+
+func TestFetcherFetchRangeErrJSON(t *testing.T) {
+	const inN = 3
+	const inSkip = 1
+	const inCh = "83601"
+	const inReadKey = "74545caba2bfd44f"
+	const wantMethod = "GET"
+	const wantPath = "/api/v2/channels/83601/data"
+	wantQuery := url.Values{
+		"n":    []string{strconv.Itoa(inN)},
+		"skip": []string{strconv.Itoa(inSkip)},
+	}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var handler http.HandlerFunc
+	handler = func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	f := &Fetcher{
+		Ch:      inCh,
+		ReadKey: inReadKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	_, gotErr := f.FetchRange(ctx, inN, inSkip)
 	if gotAPIErr := (&APIError{}); !errors.As(gotErr, &gotAPIErr) {
 		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
 	} else {

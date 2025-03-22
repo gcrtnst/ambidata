@@ -2,7 +2,9 @@ package ambidata
 
 import (
 	"context"
+	"fmt"
 	"net/url"
+	"strconv"
 )
 
 type Fetcher struct {
@@ -28,6 +30,31 @@ func (f *Fetcher) GetChannel(ctx context.Context) (ChannelInfo, error) {
 	}
 
 	ret := j.ToChannelInfo()
+	return ret, nil
+}
+
+func (f *Fetcher) FetchRange(ctx context.Context, n int, skip int) ([]Data, error) {
+	if n < 0 || skip < 0 {
+		err := fmt.Errorf("ambidata: (*Fetcher).FetchRange: n and skip must be non-negative (n=%d, skip=%d)", n, skip)
+		return nil, err
+	}
+	if n-skip <= 0 {
+		return []Data{}, nil
+	}
+
+	query := url.Values{"n": []string{strconv.Itoa(n)}}
+	if skip > 0 {
+		query.Set("skip", strconv.Itoa(skip))
+	}
+
+	path := "/api/v2/channels/" + url.PathEscape(f.Ch) + "/data"
+	var j jsonRecvDataList
+	err := f.httpGetJSON(ctx, path, query, &j)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := j.ToDataList()
 	return ret, nil
 }
 

@@ -109,6 +109,16 @@ func (j *jsonRecvLastData) ToLastData() LastData {
 	}
 }
 
+type jsonRecvDataList []jsonRecvData
+
+func (j jsonRecvDataList) ToDataList() []Data {
+	l := make([]Data, len(j))
+	for i := range j {
+		l[i] = j[i].ToData()
+	}
+	return l
+}
+
 type jsonRecvData struct {
 	Created jsonRecvTime                `json:"created"`
 	D1      jsonMaybe[float64]          `json:"d1"`
