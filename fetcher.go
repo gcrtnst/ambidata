@@ -6,9 +6,17 @@ import (
 )
 
 type Fetcher struct {
-	ReadKey string
 	Ch      string
+	ReadKey string
 	Config  *Config
+}
+
+func NewFetcher(ch string, readKey string) *Fetcher {
+	return &Fetcher{Ch: ch, ReadKey: readKey}
+}
+
+func NewFetcherFromChannelAccess(ca *ChannelAccess) *Fetcher {
+	return NewFetcher(ca.Ch, ca.ReadKey)
 }
 
 func (f *Fetcher) GetChannel(ctx context.Context) (ChannelInfo, error) {

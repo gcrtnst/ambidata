@@ -75,8 +75,8 @@ func TestFetcherGetChannelNormal(t *testing.T) {
 	srvURL, _ := url.Parse(srv.URL)
 
 	f := &Fetcher{
-		ReadKey: inReadKey,
 		Ch:      inCh,
+		ReadKey: inReadKey,
 		Config: &Config{
 			Scheme: srvURL.Scheme,
 			Host:   srvURL.Host,
@@ -118,8 +118,8 @@ func TestFetcherGetChannelErrCanceled(t *testing.T) {
 	srvURL, _ := url.Parse(srv.URL)
 
 	f := &Fetcher{
-		ReadKey: "74545caba2bfd44f",
 		Ch:      "83601",
+		ReadKey: "74545caba2bfd44f",
 		Config: &Config{
 			Scheme: srvURL.Scheme,
 			Host:   srvURL.Host,
@@ -148,8 +148,8 @@ func TestFetcherGetChannelErrStatus(t *testing.T) {
 	srvURL, _ := url.Parse(srv.URL)
 
 	f := &Fetcher{
-		ReadKey: inReadKey,
 		Ch:      inCh,
+		ReadKey: inReadKey,
 		Config: &Config{
 			Scheme: srvURL.Scheme,
 			Host:   srvURL.Host,
@@ -198,8 +198,8 @@ func TestFetcherGetChannelErrJSON(t *testing.T) {
 	srvURL, _ := url.Parse(srv.URL)
 
 	f := &Fetcher{
-		ReadKey: inReadKey,
 		Ch:      inCh,
+		ReadKey: inReadKey,
 		Config: &Config{
 			Scheme: srvURL.Scheme,
 			Host:   srvURL.Host,

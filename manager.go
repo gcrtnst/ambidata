@@ -11,6 +11,10 @@ type Manager struct {
 	Config  *Config
 }
 
+func NewManager(userKey string) *Manager {
+	return &Manager{UserKey: userKey}
+}
+
 func (m *Manager) GetChannelList(ctx context.Context) ([]ChannelAccess, error) {
 	var j jsonRecvChannelAccessList
 	err := m.httpGetJSON(ctx, "/api/v2/channels/", nil, &j)
