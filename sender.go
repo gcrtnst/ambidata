@@ -3,6 +3,7 @@ package ambidata
 import (
 	"context"
 	"net/url"
+	"time"
 )
 
 type Sender struct {
@@ -41,4 +42,15 @@ func (s *Sender) SendBulk(ctx context.Context, arr []Data) error {
 
 	path := "/api/v2/channels/" + url.PathEscape(s.Ch) + "/dataarray"
 	return httpPost(ctx, s.Config, path, j)
+}
+
+func (s *Sender) SetCmnt(ctx context.Context, created time.Time, cmnt string) error {
+	j := jsonSendCmnt{
+		WriteKey: s.WriteKey,
+		Created:  created,
+		Cmnt:     cmnt,
+	}
+
+	path := "/api/v2/channels/" + url.PathEscape(s.Ch) + "/data"
+	return httpPut(ctx, s.Config, path, j)
 }

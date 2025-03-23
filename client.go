@@ -117,6 +117,10 @@ func httpPost(ctx context.Context, cfg *Config, path string, v any) error {
 	return httpSend(ctx, cfg, "POST", path, v)
 }
 
+func httpPut(ctx context.Context, cfg *Config, path string, v any) error {
+	return httpSend(ctx, cfg, "PUT", path, v)
+}
+
 func httpDelete(ctx context.Context, cfg *Config, path string, query url.Values) error {
 	var err error
 

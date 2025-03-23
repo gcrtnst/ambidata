@@ -204,6 +204,12 @@ func toJSONSendData(data Data) jsonSendData {
 	}
 }
 
+type jsonSendCmnt struct {
+	WriteKey string    `json:"writeKey"`
+	Created  time.Time `json:"created"`
+	Cmnt     string    `json:"cmnt"`
+}
+
 type jsonRecvTime time.Time
 
 func (j *jsonRecvTime) UnmarshalJSON(data []byte) error {
