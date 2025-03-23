@@ -54,3 +54,14 @@ func (s *Sender) SetCmnt(ctx context.Context, created time.Time, cmnt string) er
 	path := "/api/v2/channels/" + url.PathEscape(s.Ch) + "/data"
 	return httpPut(ctx, s.Config, path, j)
 }
+
+func (s *Sender) SetHide(ctx context.Context, created time.Time, hide bool) error {
+	j := jsonSendHide{
+		WriteKey: s.WriteKey,
+		Created:  created,
+		Hide:     hide,
+	}
+
+	path := "/api/v2/channels/" + url.PathEscape(s.Ch) + "/data"
+	return httpPut(ctx, s.Config, path, j)
+}

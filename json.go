@@ -210,6 +210,12 @@ type jsonSendCmnt struct {
 	Cmnt     string    `json:"cmnt"`
 }
 
+type jsonSendHide struct {
+	WriteKey string    `json:"writeKey"`
+	Created  time.Time `json:"created"`
+	Hide     bool      `json:"hide"`
+}
+
 type jsonRecvTime time.Time
 
 func (j *jsonRecvTime) UnmarshalJSON(data []byte) error {
