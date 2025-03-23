@@ -34,6 +34,15 @@ type APIError struct {
 	Err    error
 }
 
+func newAPIError(req *httpRequest, err error) error {
+	return &APIError{
+		Method: req.Method,
+		Path:   req.Path,
+		Query:  filterQuery(req.Query),
+		Err:    err,
+	}
+}
+
 func (err *APIError) Error() string {
 	if err == nil || err.Method == "" || err.Path == "" || err.Err == nil {
 		return fmt.Sprintf("%#v", err)
@@ -77,12 +86,11 @@ func (err *StatusCodeError) Error() string {
 }
 
 func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values, v any) error {
-	const method = "GET"
 	var err error
 
 	req := &httpRequest{
 		Config: cfg,
-		Method: method,
+		Method: "GET",
 		Path:   path,
 		Query:  query,
 	}
@@ -96,12 +104,7 @@ func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values
 	d := json.NewDecoder(resp.Body)
 	err = d.Decode(v)
 	if err != nil {
-		return &APIError{
-			Method: method,
-			Path:   path,
-			Query:  filterQuery(query),
-			Err:    err,
-		}
+		return newAPIError(req, err)
 	}
 
 	return nil
@@ -163,12 +166,11 @@ func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
 	}
 	if resp.StatusCode != http.StatusOK {
 		_ = resp.Body.Close()
-		return nil, &APIError{
-			Method: hreq.Method,
-			Path:   hreq.URL.Path,
-			Query:  filterQuery(req.Query),
-			Err:    &StatusCodeError{StatusCode: resp.StatusCode},
-		}
+
+		var err error
+		err = &StatusCodeError{StatusCode: resp.StatusCode}
+		err = newAPIError(req, err)
+		return nil, err
 	}
 	return resp, nil
 }
