@@ -208,7 +208,7 @@ func httpReadError(req *httpRequest, body io.ReadCloser) (err error) {
 	if string(msgbuf) == "request entity too large" {
 		return ErrRequestEntityTooLarge
 	}
-	return fmt.Errorf("ambidata: unknown response body (body[:%d]=%q)", msgcap, string(msgbuf))
+	return fmt.Errorf("unknown response body (body[:%d]=%q)", msgcap, string(msgbuf))
 }
 
 func filterQuery(query url.Values) url.Values {
