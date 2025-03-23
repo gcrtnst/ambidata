@@ -230,13 +230,10 @@ func httpReadError(req *httpRequest, body io.ReadCloser) (err error) {
 	}
 	msgbuf = msgbuf[:msglen]
 
-	if len(msgbuf) <= 0 {
-		return nil
-	}
 	if string(msgbuf) == "request entity too large" {
 		return ErrRequestEntityTooLarge
 	}
-	return fmt.Errorf("unknown response body (body[:%d]=%q)", msgcap, string(msgbuf))
+	return nil
 }
 
 func filterQuery(query url.Values) url.Values {

@@ -324,59 +324,6 @@ func TestSenderSendErrRequestEntityTooLarge(t *testing.T) {
 	}
 }
 
-func TestSenderSendErrUnknownResponseBody(t *testing.T) {
-	const inCh = "83601"
-	const inWriteKey = "52e2cd7ddbfe2fed"
-	const inCode = 200
-	const inBody = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!"#$%&'()`
-	inData := Data{}
-	const wantMethod = "POST"
-	const wantPath = "/api/v2/channels/83601/data"
-	wantQuery := url.Values{}
-	const wantErr = `unknown response body (body[:64]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"")`
-
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
-	defer cancel()
-
-	var handler http.HandlerFunc
-	handler = func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(inCode)
-		w.Write([]byte(inBody))
-	}
-
-	srv := httptest.NewServer(handler)
-	defer srv.Close()
-	srvURL, _ := url.Parse(srv.URL)
-
-	s := &Sender{
-		Ch:       inCh,
-		WriteKey: inWriteKey,
-		Config: &Config{
-			Scheme: srvURL.Scheme,
-			Host:   srvURL.Host,
-			Client: srv.Client(),
-		},
-	}
-
-	gotErr := s.Send(ctx, inData)
-	if gotAPIErr, ok := gotErr.(*APIError); !ok {
-		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
-	} else {
-		if gotAPIErr.Method != wantMethod {
-			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
-		}
-		if gotAPIErr.Path != wantPath {
-			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
-		}
-		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
-			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
-		}
-		if gotAPIErr.Err.Error() != wantErr {
-			t.Errorf("err:Err: expected %q, got %q", wantErr, gotAPIErr.Err.Error())
-		}
-	}
-}
-
 func TestSenderSendBulkNormal(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
@@ -636,59 +583,6 @@ func TestSenderSendBulkErrRequestEntityTooLarge(t *testing.T) {
 		}
 		if gotAPIErr.Err != ErrRequestEntityTooLarge {
 			t.Errorf("err:Err: expected ErrRequestEntityTooLarge, got %q", gotAPIErr.Err.Error())
-		}
-	}
-}
-
-func TestSenderSendBulkErrUnknownResponseBody(t *testing.T) {
-	const inCh = "83601"
-	const inWriteKey = "52e2cd7ddbfe2fed"
-	const inCode = 200
-	const inBody = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!"#$%&'()`
-	inArr := []Data{}
-	const wantMethod = "POST"
-	const wantPath = "/api/v2/channels/83601/dataarray"
-	wantQuery := url.Values{}
-	const wantErr = `unknown response body (body[:64]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"")`
-
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
-	defer cancel()
-
-	var handler http.HandlerFunc
-	handler = func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(inCode)
-		w.Write([]byte(inBody))
-	}
-
-	srv := httptest.NewServer(handler)
-	defer srv.Close()
-	srvURL, _ := url.Parse(srv.URL)
-
-	s := &Sender{
-		Ch:       inCh,
-		WriteKey: inWriteKey,
-		Config: &Config{
-			Scheme: srvURL.Scheme,
-			Host:   srvURL.Host,
-			Client: srv.Client(),
-		},
-	}
-
-	gotErr := s.SendBulk(ctx, inArr)
-	if gotAPIErr, ok := gotErr.(*APIError); !ok {
-		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
-	} else {
-		if gotAPIErr.Method != wantMethod {
-			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
-		}
-		if gotAPIErr.Path != wantPath {
-			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
-		}
-		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
-			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
-		}
-		if gotAPIErr.Err.Error() != wantErr {
-			t.Errorf("err:Err: expected %q, got %q", wantErr, gotAPIErr.Err.Error())
 		}
 	}
 }
