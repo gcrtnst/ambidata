@@ -77,9 +77,17 @@ func (err *StatusCodeError) Error() string {
 }
 
 func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values, v any) error {
+	const method = "GET"
 	var err error
 
-	resp, err := httpGet(ctx, cfg, path, query)
+	req := &httpRequest{
+		Config: cfg,
+		Method: method,
+		Path:   path,
+		Query:  query,
+	}
+
+	resp, err := httpDo(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -89,7 +97,7 @@ func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values
 	err = d.Decode(v)
 	if err != nil {
 		return &APIError{
-			Method: "GET",
+			Method: method,
 			Path:   path,
 			Query:  filterQuery(query),
 			Err:    err,
@@ -97,15 +105,6 @@ func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values
 	}
 
 	return nil
-}
-
-func httpGet(ctx context.Context, cfg *Config, path string, query url.Values) (*http.Response, error) {
-	return httpDo(ctx, &httpRequest{
-		Config: cfg,
-		Method: "GET",
-		Path:   path,
-		Query:  query,
-	})
 }
 
 func httpDelete(ctx context.Context, cfg *Config, path string, query url.Values) (*http.Response, error) {
