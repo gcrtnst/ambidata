@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 type Fetcher struct {
@@ -48,6 +49,27 @@ func (f *Fetcher) FetchRange(ctx context.Context, n int, skip int) ([]Data, erro
 	}
 
 	path := "/api/v2/channels/" + url.PathEscape(f.Ch) + "/data"
+	var j jsonRecvDataList
+	err := f.httpGetJSON(ctx, path, query, &j)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := j.ToDataList()
+	return ret, nil
+}
+
+func (f *Fetcher) FetchPeriod(ctx context.Context, start time.Time, end time.Time) ([]Data, error) {
+	if !start.Before(end) {
+		return []Data{}, nil
+	}
+
+	path := "/api/v2/channels/" + url.PathEscape(f.Ch) + "/data"
+	query := url.Values{
+		"start": []string{start.Format(time.RFC3339Nano)},
+		"end":   []string{end.Format(time.RFC3339Nano)},
+	}
+
 	var j jsonRecvDataList
 	err := f.httpGetJSON(ctx, path, query, &j)
 	if err != nil {
