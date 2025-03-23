@@ -173,11 +173,11 @@ func (j *jsonRecvLocation) UnmarshalJSON(data []byte) error {
 
 type jsonMaybe[T any] Maybe[T]
 
-func (j *jsonMaybe[T]) IsZero() bool {
+func (j jsonMaybe[T]) IsZero() bool {
 	return !j.OK
 }
 
-func (j *jsonMaybe[T]) MarshalJSON() ([]byte, error) {
+func (j jsonMaybe[T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(j.V)
 }
 
