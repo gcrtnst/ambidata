@@ -214,24 +214,28 @@ func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
 	return resp, nil
 }
 
-func httpReadError(req *httpRequest, body io.ReadCloser) (err error) {
-	defer func() {
-		if err != nil {
-			err = newAPIError(req, err)
-		}
-	}()
+func httpReadError(req *httpRequest, body io.ReadCloser) error {
 	defer body.Close() // ignore error
 
-	const msgcap = 64
-	msgbuf := make([]byte, msgcap)
-	msglen, msgerr := io.ReadFull(body, msgbuf)
-	if msgerr != nil && msgerr != io.EOF && msgerr != io.ErrUnexpectedEOF {
-		return msgerr
-	}
-	msgbuf = msgbuf[:msglen]
+	var err error
+	const str = "request entity too large"
+	buf := make([]byte, len(str))
 
-	if string(msgbuf) == "request entity too large" {
-		return ErrRequestEntityTooLarge
+	_, err = io.ReadFull(body, buf)
+	if err != nil {
+		if err == io.EOF || err == io.ErrUnexpectedEOF {
+			return nil
+		}
+		return newAPIError(req, err)
+	}
+
+	_, err = body.Read(buf[len(str):])
+	if err != io.EOF {
+		return nil
+	}
+
+	if string(buf) == str {
+		return newAPIError(req, ErrRequestEntityTooLarge)
 	}
 	return nil
 }
