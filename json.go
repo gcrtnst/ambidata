@@ -151,6 +151,21 @@ func (j *jsonRecvData) ToData() Data {
 	}
 }
 
+type jsonSendDataListRequest struct {
+	WriteKey string           `json:"writeKey"`
+	Data     jsonSendDataList `json:"data"`
+}
+
+type jsonSendDataList []jsonSendData
+
+func toJSONSendDataList(arr []Data) jsonSendDataList {
+	l := make(jsonSendDataList, len(arr))
+	for i := range arr {
+		l[i] = toJSONSendData(arr[i])
+	}
+	return l
+}
+
 type jsonSendDataRequest struct {
 	jsonSendData
 	WriteKey string `json:"writeKey"`

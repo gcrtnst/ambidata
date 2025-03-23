@@ -32,3 +32,13 @@ func (s *Sender) Send(ctx context.Context, data Data) error {
 	path := "/api/v2/channels/" + url.PathEscape(s.Ch) + "/data"
 	return httpPost(ctx, s.Config, path, j)
 }
+
+func (s *Sender) SendBulk(ctx context.Context, arr []Data) error {
+	j := jsonSendDataListRequest{
+		WriteKey: s.WriteKey,
+		Data:     toJSONSendDataList(arr),
+	}
+
+	path := "/api/v2/channels/" + url.PathEscape(s.Ch) + "/dataarray"
+	return httpPost(ctx, s.Config, path, j)
+}
