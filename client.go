@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -20,6 +21,8 @@ var (
 var defaultHeader = http.Header{
 	"User-Agent": nil, // disable sending User-Agent
 }
+
+var ErrRequestEntityTooLarge = errors.New("request entity too large")
 
 type Config struct {
 	Scheme string
@@ -110,13 +113,21 @@ func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values
 	return nil
 }
 
-func httpDelete(ctx context.Context, cfg *Config, path string, query url.Values) (*http.Response, error) {
-	return httpDo(ctx, &httpRequest{
+func httpDelete(ctx context.Context, cfg *Config, path string, query url.Values) error {
+	var err error
+
+	req := &httpRequest{
 		Config: cfg,
 		Method: "DELETE",
 		Path:   path,
 		Query:  query,
-	})
+	}
+
+	resp, err := httpDo(ctx, req)
+	if err != nil {
+		return err
+	}
+	return httpReadError(req, resp.Body)
 }
 
 type httpRequest struct {
@@ -173,6 +184,31 @@ func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
 		return nil, err
 	}
 	return resp, nil
+}
+
+func httpReadError(req *httpRequest, body io.ReadCloser) (err error) {
+	defer func() {
+		if err != nil {
+			err = newAPIError(req, err)
+		}
+	}()
+	defer body.Close() // ignore error
+
+	const msgcap = 64
+	msgbuf := make([]byte, msgcap)
+	msglen, msgerr := io.ReadFull(body, msgbuf)
+	if msgerr != nil && msgerr != io.EOF && msgerr != io.ErrUnexpectedEOF {
+		return msgerr
+	}
+	msgbuf = msgbuf[:msglen]
+
+	if len(msgbuf) <= 0 {
+		return nil
+	}
+	if string(msgbuf) == "request entity too large" {
+		return ErrRequestEntityTooLarge
+	}
+	return fmt.Errorf("ambidata: unknown response body (body[:%d]=%q)", msgcap, string(msgbuf))
 }
 
 func filterQuery(query url.Values) url.Values {
