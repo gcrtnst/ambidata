@@ -83,7 +83,7 @@ func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // ignore error
 
 	d := json.NewDecoder(resp.Body)
 	err = d.Decode(v)
