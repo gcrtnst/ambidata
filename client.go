@@ -88,7 +88,7 @@ func (err *StatusCodeError) Error() string {
 	return strconv.Itoa(code) + " " + text
 }
 
-func httpGetJSON(ctx context.Context, cfg *Config, path string, query url.Values, v any) error {
+func httpGet(ctx context.Context, cfg *Config, path string, query url.Values, v any) error {
 	var err error
 
 	req := &httpRequest{

@@ -25,7 +25,7 @@ func NewFetcherFromChannelAccess(ca *ChannelAccess) *Fetcher {
 func (f *Fetcher) GetChannel(ctx context.Context) (ChannelInfo, error) {
 	path := "/api/v2/channels/" + url.PathEscape(f.Ch) + "/"
 	var j jsonRecvChannelInfo
-	err := f.httpGetJSON(ctx, path, nil, &j)
+	err := f.httpGet(ctx, path, nil, &j)
 	if err != nil {
 		return ChannelInfo{}, err
 	}
@@ -50,7 +50,7 @@ func (f *Fetcher) FetchRange(ctx context.Context, n int, skip int) ([]Data, erro
 
 	path := "/api/v2/channels/" + url.PathEscape(f.Ch) + "/data"
 	var j jsonRecvDataList
-	err := f.httpGetJSON(ctx, path, query, &j)
+	err := f.httpGet(ctx, path, query, &j)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (f *Fetcher) FetchPeriod(ctx context.Context, start time.Time, end time.Tim
 	}
 
 	var j jsonRecvDataList
-	err := f.httpGetJSON(ctx, path, query, &j)
+	err := f.httpGet(ctx, path, query, &j)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (f *Fetcher) FetchPeriod(ctx context.Context, start time.Time, end time.Tim
 	return ret, nil
 }
 
-func (f *Fetcher) httpGetJSON(ctx context.Context, path string, query url.Values, v any) error {
+func (f *Fetcher) httpGet(ctx context.Context, path string, query url.Values, v any) error {
 	const key = "readKey"
 	val := f.ReadKey
 	if query == nil {
@@ -89,5 +89,5 @@ func (f *Fetcher) httpGetJSON(ctx context.Context, path string, query url.Values
 		query.Set(key, val)
 	}
 
-	return httpGetJSON(ctx, f.Config, path, query, v)
+	return httpGet(ctx, f.Config, path, query, v)
 }
