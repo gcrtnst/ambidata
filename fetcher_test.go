@@ -66,7 +66,7 @@ func TestFetcherGetChannelNormal(t *testing.T) {
 	var gotReq *http.Request
 	mux := http.NewServeMux()
 	mux.Handle("/", http.NotFoundHandler())
-	mux.HandleFunc("GET /api/v2/channels/"+inCh+"/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /api/v2/channels/"+inCh+"/{$}", func(w http.ResponseWriter, r *http.Request) {
 		gotReq = r
 		w.Write([]byte(inBody))
 	})
