@@ -113,6 +113,10 @@ func httpGet(ctx context.Context, cfg *Config, path string, query url.Values, v 
 	return nil
 }
 
+func httpPost(ctx context.Context, cfg *Config, path string, v any) error {
+	return httpSend(ctx, cfg, "POST", path, v)
+}
+
 func httpDelete(ctx context.Context, cfg *Config, path string, query url.Values) error {
 	var err error
 
@@ -121,6 +125,26 @@ func httpDelete(ctx context.Context, cfg *Config, path string, query url.Values)
 		Method: "DELETE",
 		Path:   path,
 		Query:  query,
+	}
+
+	resp, err := httpDo(ctx, req)
+	if err != nil {
+		return err
+	}
+	return httpReadError(req, resp.Body)
+}
+
+func httpSend(ctx context.Context, cfg *Config, method string, path string, v any) error {
+	body, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	req := &httpRequest{
+		Config: cfg,
+		Method: method,
+		Path:   path,
+		Body:   body,
 	}
 
 	resp, err := httpDo(ctx, req)

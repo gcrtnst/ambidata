@@ -151,6 +151,44 @@ func (j *jsonRecvData) ToData() Data {
 	}
 }
 
+type jsonSendDataRequest struct {
+	jsonSendData
+	WriteKey string `json:"writeKey"`
+}
+
+type jsonSendData struct {
+	Created time.Time          `json:"created,omitzero"`
+	D1      jsonMaybe[float64] `json:"d1,omitzero"`
+	D2      jsonMaybe[float64] `json:"d2,omitzero"`
+	D3      jsonMaybe[float64] `json:"d3,omitzero"`
+	D4      jsonMaybe[float64] `json:"d4,omitzero"`
+	D5      jsonMaybe[float64] `json:"d5,omitzero"`
+	D6      jsonMaybe[float64] `json:"d6,omitzero"`
+	D7      jsonMaybe[float64] `json:"d7,omitzero"`
+	D8      jsonMaybe[float64] `json:"d8,omitzero"`
+	Lat     jsonMaybe[float64] `json:"lat,omitzero"`
+	Lng     jsonMaybe[float64] `json:"lng,omitzero"`
+	Cmnt    string             `json:"cmnt,omitzero"`
+}
+
+func toJSONSendData(data Data) jsonSendData {
+	return jsonSendData{
+		Created: data.Created,
+		D1:      jsonMaybe[float64](data.D1),
+		D2:      jsonMaybe[float64](data.D2),
+		D3:      jsonMaybe[float64](data.D3),
+		D4:      jsonMaybe[float64](data.D4),
+		D5:      jsonMaybe[float64](data.D5),
+		D6:      jsonMaybe[float64](data.D6),
+		D7:      jsonMaybe[float64](data.D7),
+		D8:      jsonMaybe[float64](data.D8),
+		Lat:     jsonMaybe[float64]{V: data.Loc.V.Lat, OK: data.Loc.OK},
+		Lng:     jsonMaybe[float64]{V: data.Loc.V.Lng, OK: data.Loc.OK},
+		Cmnt:    data.Cmnt,
+		// ignore hide
+	}
+}
+
 type jsonRecvTime time.Time
 
 func (j *jsonRecvTime) UnmarshalJSON(data []byte) error {
