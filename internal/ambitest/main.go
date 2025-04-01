@@ -39,24 +39,58 @@ func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 		return 2
 	}
 
-	pass := true
+	fail := false
 	for _, f := range TestList {
-		errTest := f.Func(&cfg)
-		if errTest == nil {
-			fmt.Fprintf(stdout, "PASS %s\n", f.Name)
-		} else {
+		t := NewT(&cfg)
+		f.Func(t)
+
+		if t.Failed {
 			fmt.Fprintf(stdout, "FAIL %s\n", f.Name)
-			fmt.Fprintf(stdout, "     %s\n", strings.Replace(errTest.Error(), "\n", "\n     ", -1))
-			pass = false
+		} else {
+			fmt.Fprintf(stdout, "PASS %s\n", f.Name)
 		}
+
+		for _, s := range t.Output {
+			fmt.Fprintf(stdout, "     %s\n", strings.Replace(s, "\n", "\n     ", -1))
+		}
+
+		fail = fail || t.Failed
 	}
 
-	if !pass {
+	if fail {
 		fmt.Fprintf(stdout, "FAIL\n")
 		return 1
 	}
 	fmt.Fprintf(stdout, "PASS\n")
 	return 0
+}
+
+type T struct {
+	Config *Config
+	Failed bool
+	Output []string
+}
+
+func NewT(cfg *Config) *T {
+	return &T{
+		Config: cfg,
+		Failed: false,
+		Output: nil,
+	}
+}
+
+func (t *T) Fail() {
+	t.Failed = true
+}
+
+func (t *T) Logf(format string, args ...any) {
+	s := fmt.Sprintf(format, args...)
+	t.Output = append(t.Output, s)
+}
+
+func (t *T) Errorf(format string, args ...any) {
+	t.Fail()
+	t.Logf(format, args...)
 }
 
 type Config struct {
@@ -94,4 +128,4 @@ type TestEntry struct {
 	Func TestFunc
 }
 
-type TestFunc func(*Config) error
+type TestFunc func(*T)
