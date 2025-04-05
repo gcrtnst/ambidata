@@ -20,6 +20,7 @@ func TestSenderSendNormal(t *testing.T) {
 	const inWriteKey = "52e2cd7ddbfe2fed"
 	const inCode = 200
 	const inBody = ""
+	const wantCT = "application/json"
 
 	inData := Data{
 		Created: time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC),
@@ -88,6 +89,9 @@ func TestSenderSendNormal(t *testing.T) {
 	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
 		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
 	}
+	if gotCT := gotReq.Header.Get("Content-Type"); gotCT != wantCT {
+		t.Errorf("request: Content-Type: expected %#v, got %#v", wantCT, gotCT)
+	}
 
 	var gotJSON map[string]any
 	if err := json.Unmarshal(gotReqBody, &gotJSON); err != nil {
@@ -102,6 +106,7 @@ func TestSenderSendEmpty(t *testing.T) {
 	const inWriteKey = "52e2cd7ddbfe2fed"
 	const inCode = 200
 	const inBody = ""
+	const wantCT = "application/json"
 
 	inData := Data{}
 	wantJSON := map[string]any{"writeKey": inWriteKey}
@@ -141,6 +146,9 @@ func TestSenderSendEmpty(t *testing.T) {
 
 	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
 		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
+	}
+	if gotCT := gotReq.Header.Get("Content-Type"); gotCT != wantCT {
+		t.Errorf("request: Content-Type: expected %#v, got %#v", wantCT, gotCT)
 	}
 
 	var gotJSON map[string]any
@@ -329,6 +337,7 @@ func TestSenderSendBulkNormal(t *testing.T) {
 	const inWriteKey = "52e2cd7ddbfe2fed"
 	const inCode = 200
 	const inBody = ""
+	const wantCT = "application/json"
 
 	inArr := []Data{
 		{},
@@ -404,6 +413,9 @@ func TestSenderSendBulkNormal(t *testing.T) {
 
 	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
 		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
+	}
+	if gotCT := gotReq.Header.Get("Content-Type"); gotCT != wantCT {
+		t.Errorf("request: Content-Type: expected %#v, got %#v", wantCT, gotCT)
 	}
 
 	var gotJSON map[string]any
@@ -594,6 +606,7 @@ func TestSenderSetCmntNormal(t *testing.T) {
 	const inCmnt = "comment"
 	const inCode = 200
 	const inBody = "OK"
+	const wantCT = "application/json"
 
 	wantJSON := map[string]any{
 		"writeKey": inWriteKey,
@@ -636,6 +649,9 @@ func TestSenderSetCmntNormal(t *testing.T) {
 
 	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
 		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
+	}
+	if gotCT := gotReq.Header.Get("Content-Type"); gotCT != wantCT {
+		t.Errorf("request: Content-Type: expected %#v, got %#v", wantCT, gotCT)
 	}
 
 	var gotJSON map[string]any
@@ -790,6 +806,7 @@ func TestSenderSetHideNormal(t *testing.T) {
 	const inHide = true
 	const inCode = 200
 	const inBody = "OK"
+	const wantCT = "application/json"
 
 	wantJSON := map[string]any{
 		"writeKey": inWriteKey,
@@ -832,6 +849,9 @@ func TestSenderSetHideNormal(t *testing.T) {
 
 	if gotUA := gotReq.Header.Values("User-Agent"); len(gotUA) > 0 {
 		t.Errorf("request: User-Agent: expected not to send, got %#v", gotUA)
+	}
+	if gotCT := gotReq.Header.Get("Content-Type"); gotCT != wantCT {
+		t.Errorf("request: Content-Type: expected %#v, got %#v", wantCT, gotCT)
 	}
 
 	var gotJSON map[string]any

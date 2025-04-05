@@ -18,10 +18,6 @@ var (
 	DefaultHost   = "ambidata.io"
 )
 
-var defaultHeader = http.Header{
-	"User-Agent": nil, // disable sending User-Agent
-}
-
 var ErrRequestEntityTooLarge = errors.New("request entity too large")
 
 type Config struct {
@@ -145,10 +141,11 @@ func httpSend(ctx context.Context, cfg *Config, method string, path string, v an
 	}
 
 	req := &httpRequest{
-		Config: cfg,
-		Method: method,
-		Path:   path,
-		Body:   body,
+		Config:      cfg,
+		Method:      method,
+		Path:        path,
+		Body:        body,
+		ContentType: "application/json",
 	}
 
 	resp, err := httpDo(ctx, req)
@@ -159,11 +156,12 @@ func httpSend(ctx context.Context, cfg *Config, method string, path string, v an
 }
 
 type httpRequest struct {
-	Config *Config
-	Method string
-	Path   string
-	Query  url.Values
-	Body   []byte
+	Config      *Config
+	Method      string
+	Path        string
+	Query       url.Values
+	Body        []byte
+	ContentType string
 }
 
 func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
@@ -189,10 +187,16 @@ func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
 		body, _ = getBody()
 	}
 
+	header := make(http.Header)
+	header.Set("User-Agent", "") // disable sending User-Agent
+	if req.ContentType != "" {
+		header.Set("Content-Type", req.ContentType)
+	}
+
 	hreq := &http.Request{
 		Method:        req.Method,
 		URL:           u,
-		Header:        defaultHeader,
+		Header:        header,
 		Body:          body,
 		ContentLength: int64(len(req.Body)),
 		Host:          host,
