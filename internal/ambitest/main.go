@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 )
 
 const Name = "ambitest"
@@ -47,9 +48,10 @@ func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 }
 
 type T struct {
-	Config *Config
-	Failed bool
-	Output []string
+	Config   *Config
+	Failed   bool
+	Output   []string
+	LastPost time.Time
 }
 
 func NewT(cfg *Config) *T {
@@ -82,6 +84,15 @@ func (t *T) Error(args ...any) {
 func (t *T) Errorf(format string, args ...any) {
 	t.Fail()
 	t.Logf(format, args...)
+}
+
+func (t *T) PostWait() {
+	time.Sleep(time.Until(t.LastPost.Add(5 * time.Second)))
+	t.LastPost = time.Now()
+}
+
+func (t *T) PostDone() {
+	t.LastPost = time.Now()
 }
 
 type Config struct {
