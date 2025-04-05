@@ -9,8 +9,6 @@ import (
 
 const Name = "ambitest"
 
-var TestList = []TestEntry{}
-
 func main() {
 	os.Exit(Run(os.Args[1:], os.Stdout, os.Stderr))
 }
