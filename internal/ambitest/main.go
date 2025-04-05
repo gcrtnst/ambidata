@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -18,26 +16,11 @@ func main() {
 }
 
 func Run(args []string, stdout io.Writer, stderr io.Writer) int {
-	var cfgpath string
-	f := flag.NewFlagSet(Name, flag.ContinueOnError)
-	f.SetOutput(stderr)
-	f.StringVar(&cfgpath, "c", "", "config file")
-
-	errFlag := f.Parse(args)
-	if errFlag == flag.ErrHelp {
-		return 0
-	}
-	if errFlag != nil {
-		fmt.Fprintf(stderr, "%s: %s\n", Name, errFlag.Error())
-		return 2
-	}
-
 	var cfg Config
-	errCfg := LoadConfig(&cfg, cfgpath)
-	if errCfg != nil {
-		fmt.Fprintf(stderr, "%s: %s\n", Name, errCfg.Error())
-		return 2
-	}
+	cfg.Ch = os.Getenv("AMBITEST_CH")
+	cfg.UserKey = os.Getenv("AMBITEST_USERKEY")
+	cfg.ReadKey = os.Getenv("AMBITEST_READKEY")
+	cfg.WriteKey = os.Getenv("AMBITEST_WRITEKEY")
 
 	fail := false
 	for _, f := range TestList {
@@ -98,29 +81,6 @@ type Config struct {
 	UserKey  string `json:"-"`
 	ReadKey  string `json:"-"`
 	WriteKey string `json:"-"`
-}
-
-func LoadConfig(cfg *Config, path string) error {
-	var err error
-
-	f, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close() // ignore error
-
-	dec := json.NewDecoder(f)
-	dec.DisallowUnknownFields()
-	err = dec.Decode(cfg)
-	if err != nil {
-		return err
-	}
-
-	cfg.Ch = os.Getenv("AMBITEST_CH")
-	cfg.UserKey = os.Getenv("AMBITEST_USERKEY")
-	cfg.ReadKey = os.Getenv("AMBITEST_READKEY")
-	cfg.WriteKey = os.Getenv("AMBITEST_WRITEKEY")
-	return nil
 }
 
 type TestEntry struct {
