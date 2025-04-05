@@ -66,9 +66,19 @@ func (t *T) Fail() {
 	t.Failed = true
 }
 
+func (t *T) Log(args ...any) {
+	s := fmt.Sprint(args...)
+	t.Output = append(t.Output, s)
+}
+
 func (t *T) Logf(format string, args ...any) {
 	s := fmt.Sprintf(format, args...)
 	t.Output = append(t.Output, s)
+}
+
+func (t *T) Error(args ...any) {
+	t.Fail()
+	t.Log(args...)
 }
 
 func (t *T) Errorf(format string, args ...any) {
