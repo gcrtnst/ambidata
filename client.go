@@ -1,6 +1,4 @@
-// Package ambidata は、Ambidata API と連携するためのクライアントライブラリを提供します。
-// このパッケージには、チャンネルの管理、データの取得、データの送信といった機能が含まれています。
-// また、APIリクエストの設定やエラーハンドリングのための構造体やユーティリティも提供します。
+// Package ambidata は、Ambient API と連携するためのクライアントライブラリを提供します。
 package ambidata
 
 import (
