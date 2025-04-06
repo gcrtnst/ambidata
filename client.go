@@ -16,8 +16,8 @@ import (
 
 // Config 構造体で値を設定しなかった場合に使用されるデフォルト値。
 var (
-	DefaultScheme = "https"			// [Config.Scheme] を参照。
-	DefaultHost   = "ambidata.io"	// [Config.Host] を参照。
+	DefaultScheme = "https"       // [Config.Scheme] を参照。
+	DefaultHost   = "ambidata.io" // [Config.Host] を参照。
 )
 
 // ErrRequestEntityTooLarge はリクエストのエンティティサイズが大きすぎる場合に返されるエラーです。
