@@ -5,12 +5,16 @@ import (
 	"time"
 )
 
+// ChannelAccess はチャンネルへのアクセス情報を保持する構造体です。
+// チャンネル情報に加えて、読み取りキーと書き込みキーを含みます。
 type ChannelAccess struct {
 	ChannelInfo
 	ReadKey  string
 	WriteKey string
 }
 
+// ToLv1 はChannelAccessからChannelAccessLv1への変換を行います。
+// レベル1のチャンネルアクセス情報（チャンネルIDと書き込みキーのみ）を返します。
 func (ch *ChannelAccess) ToLv1() ChannelAccessLv1 {
 	return ChannelAccessLv1{
 		Ch:       ch.Ch,
@@ -18,11 +22,15 @@ func (ch *ChannelAccess) ToLv1() ChannelAccessLv1 {
 	}
 }
 
+// ChannelAccessLv1 は簡易的なチャンネルアクセス情報を保持する構造体です。
+// チャンネルIDと書き込みキーのみを含む軽量な構造体です。
 type ChannelAccessLv1 struct {
 	Ch       string
 	WriteKey string
 }
 
+// ChannelInfo はチャンネルの詳細情報を保持する構造体です。
+// チャンネルの基本情報、フィールド情報、最新データなどを含みます。
 type ChannelInfo struct {
 	Ch         string
 	User       string
@@ -49,13 +57,19 @@ type ChannelInfo struct {
 	LastData   LastData
 }
 
+// FieldInfo はデータフィールドの情報を保持する構造体です。
+// フィールド名と色情報を含みます。
 type FieldInfo struct {
 	Name  string
 	Color FieldColor
 }
 
+// FieldColor はフィールドの色を表す型です。
+// 文字列として保存され、[FieldColorToRGBA] 関数で RGBA 値に変換できます。
 type FieldColor string
 
+// 以下の定数はフィールドに使用できる色を定義しています。
+// これらの色は Ambient のグラフやUIで使用されます。
 const (
 	FieldColorBlue    FieldColor = "1"
 	FieldColorRed     FieldColor = "2"
@@ -86,16 +100,22 @@ var colorMap = map[FieldColor]color.RGBA{
 	FieldColorBlack:   {0x00, 0x00, 0x00, 0xFF},
 }
 
+// FieldColorToRGBA は指定された [Color] を RGBA 値に変換します。
+// 変換が成功した場合は RGBA 値と true を返し、失敗した場合はゼロ値と false を返します。
 func FieldColorToRGBA(c FieldColor) (color.RGBA, bool) {
 	rgba, ok := colorMap[c]
 	return rgba, ok
 }
 
+// LastData はチャンネルの最新データを表す構造体です。
+// 通常のデータに加えて、データのIDを含みます。
 type LastData struct {
 	Data
 	ID string
 }
 
+// Data はチャンネルに保存されるデータポイントを表す構造体です。
+// タイムスタンプ、8つの数値フィールド、位置情報、コメント、表示/非表示状態を含みます。
 type Data struct {
 	Created time.Time
 	D1      Maybe[float64]
@@ -111,15 +131,22 @@ type Data struct {
 	Hide    bool
 }
 
+// Location は位置情報を表す構造体です。
+// 緯度と経度の座標を含みます。
 type Location struct {
 	Lat, Lng float64
 }
 
+// Maybe はオプショナル値を表すジェネリック型です。
+// 値が存在するかどうかを示すOKフィールドと、実際の値を保持するVフィールドを持ちます。
+// Goにおけるオプショナル型の実装として機能します。
 type Maybe[T any] struct {
 	V  T
 	OK bool
 }
 
+// Just は値vを含むMaybe型を作成します。
+// 作成されたMaybe型はOKフィールドがtrueに設定されます。
 func Just[T any](v T) Maybe[T] {
 	return Maybe[T]{V: v, OK: true}
 }

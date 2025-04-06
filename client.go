@@ -13,19 +13,30 @@ import (
 	"strings"
 )
 
+// DefaultScheme はAPIリクエストに使用されるデフォルトのスキーム（プロトコル）です。
+// デフォルト値は "https" です。
+// 
+// DefaultHost はAPIリクエストに使用されるデフォルトのホスト名です。
+// デフォルト値は "ambidata.io" です。
 var (
 	DefaultScheme = "https"
 	DefaultHost   = "ambidata.io"
 )
 
+// ErrRequestEntityTooLarge はリクエストのエンティティサイズが大きすぎる場合に返されるエラーです。
+// APIがリクエストを処理できない場合に発生します。
 var ErrRequestEntityTooLarge = errors.New("request entity too large")
 
+// Config はAPIリクエストの設定を保持する構造体です。
+// APIエンドポイントのスキーム、ホスト名、およびHTTPクライアントをカスタマイズできます。
 type Config struct {
 	Scheme string
 	Host   string
 	Client *http.Client
 }
 
+// APIError はAPIリクエスト中に発生したエラーを表す構造体です。
+// エラーが発生したリクエストのメソッド、パス、クエリパラメータ、および元のエラーを含みます。
 type APIError struct {
 	Method string
 	Path   string
@@ -67,6 +78,8 @@ func (err *APIError) Unwrap() error {
 	return err.Err
 }
 
+// StatusCodeError はHTTPステータスコードに関連するエラーを表す構造体です。
+// 200 OK以外のステータスコードが返された場合に使用されます。
 type StatusCodeError struct {
 	StatusCode int
 }
