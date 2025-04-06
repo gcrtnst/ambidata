@@ -10,4 +10,5 @@ var TestList = []TestEntry{
 	{"TestSenderSetCmnt", TestSenderSetCmnt},
 	{"TestSenderSetHide", TestSenderSetHide},
 	{"TestFetcherGetChannel", TestFetcherGetChannel},
+	{"TestFetcherFetchRange", TestFetcherFetchRange},
 }
