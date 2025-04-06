@@ -8,4 +8,5 @@ var TestList = []TestEntry{
 	{"TestSenderSend", TestSenderSend},
 	{"TestSenderSendBulk", TestSenderSendBulk},
 	{"TestSenderSetCmnt", TestSenderSetCmnt},
+	{"TestSenderSetHide", TestSenderSetHide},
 }
