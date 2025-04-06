@@ -94,7 +94,7 @@ func TestManagerGetChannelList(t *T) {
 	assertColor(t, "d8.color: ", l[i].D8.Color)
 	assertNonZeroLocation(t, "loc: ", l[i].Loc)
 	assertNotEqual(t, "photoid: ", "", l[i].PhotoID)
-	assertNonEmptySlice(t, "devkeys: ", l[i].DevKeys)
+	assertContains(t, "devkeys: ", t.Config.DevKey, l[i].DevKeys)
 	assertAtoi(t, "bd: ", l[i].Bd)
 	assertNotEqual(t, "lastdata._id: ", "", l[i].LastData.ID)
 	assertCmp(t, "lastdata: ", data, l[i].LastData.Data)
@@ -105,6 +105,8 @@ func TestManagerGetDeviceChannel(t *T) {
 	m := ambidata.NewManager(t.Config.UserKey)
 	s := ambidata.NewSender(t.Config.Ch, t.Config.WriteKey)
 
+	stt := time.Date(2015, 1, 1, 0, 0, 0, 0, time.UTC)
+	end := time.Now().Add(time.Hour)
 	data := ambidata.Data{
 		Created: time.Date(2006, 1, 2, 15, 4, 5, 999000000, time.UTC),
 		D1:      ambidata.Just(101.0),
@@ -118,6 +120,9 @@ func TestManagerGetDeviceChannel(t *T) {
 		Loc:     ambidata.Just(ambidata.Location{Lat: 109.0, Lng: 110.0}),
 		Cmnt:    "cmnt",
 	}
+
+	const wantDataPerDayMin = 1
+	const wantDCh = true
 
 	errDel := m.DeleteData(ctx, t.Config.Ch)
 	if errDel != nil {
@@ -135,35 +140,43 @@ func TestManagerGetDeviceChannel(t *T) {
 		return
 	}
 
-	l, errList := m.GetChannelList(ctx)
-	if errList != nil {
-		t.Error(errList)
-		return
-	}
-
-	i := -1
-	for j := range l {
-		if l[j].Ch == t.Config.Ch {
-			i = j
-			break
-		}
-	}
-	if i < 0 {
-		t.Error("target channel not found")
-		return
-	}
-
-	if len(l[i].DevKeys) <= 0 {
-		t.Error("target channel has no device keys configured")
-		return
-	}
-	devKey := l[i].DevKeys[0]
-
-	c, err := m.GetDeviceChannel(ctx, devKey)
+	c, err := m.GetDeviceChannel(ctx, t.Config.DevKey)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	assertCmp(t, "", l[i], c)
+	assertAtoi(t, "user: ", c.User)
+	assertEqual(t, "readKey: ", t.Config.ReadKey, c.ReadKey)
+	assertEqual(t, "writeKey: ", t.Config.WriteKey, c.WriteKey)
+	assertTimeIsBetween(t, "created: ", stt, end, c.Created)
+	assertTimeIsBetween(t, "modified: ", stt, end, c.Modified)
+	assertTimeIsBetween(t, "lastpost: ", stt, end, c.LastPost)
+	assertEqual(t, "charts: ", 0, c.Charts)
+	assertGreaterOrEqual(t, "dataperday: ", wantDataPerDayMin, c.DataPerDay)
+	assertEqual(t, "d_ch: ", wantDCh, c.DCh)
+	assertNotEqual(t, "chName: ", "", c.ChName)
+	assertNotEqual(t, "chDesc: ", "", c.ChDesc)
+	assertNotEqual(t, "d1.name: ", "", c.D1.Name)
+	assertColor(t, "d1.color: ", c.D1.Color)
+	assertNotEqual(t, "d2.name: ", "", c.D2.Name)
+	assertColor(t, "d2.color: ", c.D2.Color)
+	assertNotEqual(t, "d3.name: ", "", c.D3.Name)
+	assertColor(t, "d3.color: ", c.D3.Color)
+	assertNotEqual(t, "d4.name: ", "", c.D4.Name)
+	assertColor(t, "d4.color: ", c.D4.Color)
+	assertNotEqual(t, "d5.name: ", "", c.D5.Name)
+	assertColor(t, "d5.color: ", c.D5.Color)
+	assertNotEqual(t, "d6.name: ", "", c.D6.Name)
+	assertColor(t, "d6.color: ", c.D6.Color)
+	assertNotEqual(t, "d7.name: ", "", c.D7.Name)
+	assertColor(t, "d7.color: ", c.D7.Color)
+	assertNotEqual(t, "d8.name: ", "", c.D8.Name)
+	assertColor(t, "d8.color: ", c.D8.Color)
+	assertNonZeroLocation(t, "loc: ", c.Loc)
+	assertNotEqual(t, "photoid: ", "", c.PhotoID)
+	assertContains(t, "devkeys: ", t.Config.DevKey, c.DevKeys)
+	assertAtoi(t, "bd: ", c.Bd)
+	assertNotEqual(t, "lastdata._id: ", "", c.LastData.ID)
+	assertCmp(t, "lastdata: ", data, c.LastData.Data)
 }

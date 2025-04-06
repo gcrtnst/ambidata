@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmp"
+	"slices"
 	"strconv"
 	"time"
 
@@ -27,9 +28,9 @@ func assertGreaterOrEqual[U cmp.Ordered](t *T, prefix string, want U, got U) {
 	}
 }
 
-func assertNonEmptySlice[E any](t *T, prefix string, got []E) {
-	if len(got) <= 0 {
-		t.Errorf("%sexpected non-empty slice, but got an empty slice", prefix)
+func assertContains[E comparable](t *T, prefix string, want E, got []E) {
+	if !slices.Contains(got, want) {
+		t.Errorf("%sexpected to contain %#v, got %#v", prefix, want, got)
 	}
 }
 

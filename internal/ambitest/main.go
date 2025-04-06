@@ -20,6 +20,7 @@ func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 	cfg.UserKey = os.Getenv("AMBITEST_USERKEY")
 	cfg.ReadKey = os.Getenv("AMBITEST_READKEY")
 	cfg.WriteKey = os.Getenv("AMBITEST_WRITEKEY")
+	cfg.DevKey = os.Getenv("AMBITEST_DEVKEY")
 
 	fail := false
 	for _, f := range TestList {
@@ -96,10 +97,11 @@ func (t *T) PostDone() {
 }
 
 type Config struct {
-	Ch       string `json:"-"`
-	UserKey  string `json:"-"`
-	ReadKey  string `json:"-"`
-	WriteKey string `json:"-"`
+	Ch       string
+	UserKey  string
+	ReadKey  string
+	WriteKey string
+	DevKey   string
 }
 
 type TestEntry struct {
