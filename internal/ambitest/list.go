@@ -9,4 +9,5 @@ var TestList = []TestEntry{
 	{"TestSenderSendBulk", TestSenderSendBulk},
 	{"TestSenderSetCmnt", TestSenderSetCmnt},
 	{"TestSenderSetHide", TestSenderSetHide},
+	{"TestFetcherGetChannel", TestFetcherGetChannel},
 }
