@@ -3,6 +3,6 @@ package main
 var TestList = []TestEntry{
 	{"TestManagerGetChannelList", TestManagerGetChannelList},
 	{"TestManagerGetDeviceChannel", TestManagerGetDeviceChannel},
-	{"TestGetDeviceChannelLv1", TestGetDeviceChannelLv1},
-	{"TestDeleteData", TestDeleteData},
+	{"TestManagerGetDeviceChannelLv1", TestManagerGetDeviceChannelLv1},
+	{"TestManagerDeleteData", TestManagerDeleteData},
 }

@@ -182,7 +182,7 @@ func TestManagerGetDeviceChannel(t *T) {
 	assertCmp(t, "lastdata: ", data, c.LastData.Data)
 }
 
-func TestGetDeviceChannelLv1(t *T) {
+func TestManagerGetDeviceChannelLv1(t *T) {
 	ctx := context.Background()
 	m := ambidata.NewManager(t.Config.UserKey)
 
@@ -196,7 +196,7 @@ func TestGetDeviceChannelLv1(t *T) {
 	assertEqual(t, "writeKey: ", t.Config.WriteKey, c.WriteKey)
 }
 
-func TestDeleteData(t *T) {
+func TestManagerDeleteData(t *T) {
 	ctx := context.Background()
 	m := ambidata.NewManager(t.Config.UserKey)
 	f := ambidata.NewFetcher(t.Config.Ch, t.Config.ReadKey)
