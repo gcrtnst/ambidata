@@ -22,9 +22,11 @@ func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 	cfg.WriteKey = os.Getenv("AMBITEST_WRITEKEY")
 	cfg.DevKey = os.Getenv("AMBITEST_DEVKEY")
 
+	t := &T{Config: &cfg}
 	fail := false
 	for _, f := range TestList {
-		t := NewT(&cfg)
+		t.Failed = false
+		t.Output = nil
 		f.Func(t)
 
 		if t.Failed {
@@ -53,14 +55,6 @@ type T struct {
 	Failed   bool
 	Output   []string
 	LastPost time.Time
-}
-
-func NewT(cfg *Config) *T {
-	return &T{
-		Config: cfg,
-		Failed: false,
-		Output: nil,
-	}
 }
 
 func (t *T) Fail() {
