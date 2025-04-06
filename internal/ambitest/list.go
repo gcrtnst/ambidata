@@ -4,4 +4,5 @@ var TestList = []TestEntry{
 	{"TestManagerGetChannelList", TestManagerGetChannelList},
 	{"TestManagerGetDeviceChannel", TestManagerGetDeviceChannel},
 	{"TestGetDeviceChannelLv1", TestGetDeviceChannelLv1},
+	{"TestDeleteData", TestDeleteData},
 }
