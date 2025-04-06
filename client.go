@@ -14,14 +14,10 @@ import (
 	"strings"
 )
 
-// DefaultScheme はAPIリクエストに使用されるデフォルトのスキーム（プロトコル）です。
-// デフォルト値は "https" です。
-// 
-// DefaultHost はAPIリクエストに使用されるデフォルトのホスト名です。
-// デフォルト値は "ambidata.io" です。
+// Config 構造体で値を設定しなかった場合に使用されるデフォルト値。
 var (
-	DefaultScheme = "https"
-	DefaultHost   = "ambidata.io"
+	DefaultScheme = "https"			// [Config.Scheme] を参照。
+	DefaultHost   = "ambidata.io"	// [Config.Host] を参照。
 )
 
 // ErrRequestEntityTooLarge はリクエストのエンティティサイズが大きすぎる場合に返されるエラーです。
