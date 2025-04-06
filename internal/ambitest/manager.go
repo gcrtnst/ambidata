@@ -146,6 +146,7 @@ func TestManagerGetDeviceChannel(t *T) {
 		return
 	}
 
+	assertEqual(t, "ch: ", t.Config.Ch, c.Ch)
 	assertAtoi(t, "user: ", c.User)
 	assertEqual(t, "readKey: ", t.Config.ReadKey, c.ReadKey)
 	assertEqual(t, "writeKey: ", t.Config.WriteKey, c.WriteKey)
@@ -179,4 +180,18 @@ func TestManagerGetDeviceChannel(t *T) {
 	assertAtoi(t, "bd: ", c.Bd)
 	assertNotEqual(t, "lastdata._id: ", "", c.LastData.ID)
 	assertCmp(t, "lastdata: ", data, c.LastData.Data)
+}
+
+func TestGetDeviceChannelLv1(t *T) {
+	ctx := context.Background()
+	m := ambidata.NewManager(t.Config.UserKey)
+
+	c, err := m.GetDeviceChannelLv1(ctx, t.Config.DevKey)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	assertEqual(t, "ch: ", t.Config.Ch, c.Ch)
+	assertEqual(t, "writeKey: ", t.Config.WriteKey, c.WriteKey)
 }
