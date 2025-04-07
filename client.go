@@ -1,4 +1,3 @@
-// Package ambidata は、Ambient と連携するためのクライアントライブラリを提供します。
 package ambidata
 
 import (
