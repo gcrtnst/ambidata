@@ -13,7 +13,7 @@ type Fetcher struct {
 	Ch      string // チャネルID
 	ReadKey string // リードキー
 
-	// Config は Fetcher の設定を保持します。
+	// Config は HTTP 通信の設定を保持します。
 	// nil の場合は、デフォルトの設定が使用されます。
 	Config *Config
 }

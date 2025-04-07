@@ -20,9 +20,7 @@ func (ch *ChannelAccess) ToLv1() ChannelAccessLv1 {
 	}
 }
 
-// ChannelAccessLv1 は簡易的なチャネルアクセス情報を保持する構造体です。
-//
-// Lv1 という名前は、API に対するクエリパラメータ level=1 に由来します。
+// ChannelAccessLv1 はチャネルへのアクセス情報のうち、ID とライトキーのみを保持する構造体です。
 type ChannelAccessLv1 struct {
 	Ch       string
 	WriteKey string

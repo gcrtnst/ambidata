@@ -24,7 +24,7 @@ var (
 // 主に、 [Sender.SendBulk] メソッドに渡したデータが多すぎる場合に発生します。
 var ErrRequestEntityTooLarge = errors.New("request entity too large")
 
-// Config はAPIリクエストの設定を保持する構造体です。
+// Config は HTTP 通信の設定を保持する構造体です。
 //
 // ゼロ値の Config 構造体は、デフォルトの設定を使用して Ambient に接続する有効な構成となります。
 type Config struct {
