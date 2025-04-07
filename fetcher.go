@@ -9,7 +9,7 @@ import (
 )
 
 // Fetcher はambidataからデータを取得するためのクライアントです。
-// チャンネルIDと読み取りキーを使用して、特定のチャンネルからデータを取得します。
+// チャネルIDと読み取りキーを使用して、特定のチャネルからデータを取得します。
 type Fetcher struct {
 	Ch      string
 	ReadKey string
@@ -17,19 +17,19 @@ type Fetcher struct {
 }
 
 // NewFetcher は新しいFetcherインスタンスを作成します。
-// チャンネルIDと読み取りキーを指定して、データ取得用のクライアントを初期化します。
+// チャネルIDと読み取りキーを指定して、データ取得用のクライアントを初期化します。
 func NewFetcher(ch string, readKey string) *Fetcher {
 	return &Fetcher{Ch: ch, ReadKey: readKey}
 }
 
 // NewFetcherFromChannelAccess はChannelAccessオブジェクトから新しいFetcherインスタンスを作成します。
-// ChannelAccessに含まれるチャンネルIDと読み取りキーを使用してFetcherを初期化します。
+// ChannelAccessに含まれるチャネルIDと読み取りキーを使用してFetcherを初期化します。
 func NewFetcherFromChannelAccess(ca *ChannelAccess) *Fetcher {
 	return NewFetcher(ca.Ch, ca.ReadKey)
 }
 
-// GetChannel はチャンネルの詳細情報を取得します。
-// 指定されたコンテキストを使用してAPIリクエストを実行し、チャンネル情報を返します。
+// GetChannel はチャネルの詳細情報を取得します。
+// 指定されたコンテキストを使用してAPIリクエストを実行し、チャネル情報を返します。
 func (f *Fetcher) GetChannel(ctx context.Context) (ChannelInfo, error) {
 	path := "/api/v2/channels/" + url.PathEscape(f.Ch) + "/"
 	var j jsonRecvChannelInfo

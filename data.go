@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// ChannelAccess はチャンネルへのアクセス情報を保持する構造体です。
-// チャンネル情報に加えて、読み取りキーと書き込みキーを含みます。
+// ChannelAccess はチャネルへのアクセス情報を保持する構造体です。
+// チャネル情報に加えて、読み取りキーと書き込みキーを含みます。
 type ChannelAccess struct {
 	ChannelInfo
 	ReadKey  string
@@ -14,7 +14,7 @@ type ChannelAccess struct {
 }
 
 // ToLv1 はChannelAccessからChannelAccessLv1への変換を行います。
-// レベル1のチャンネルアクセス情報（チャンネルIDと書き込みキーのみ）を返します。
+// レベル1のチャネルアクセス情報（チャネルIDと書き込みキーのみ）を返します。
 func (ch *ChannelAccess) ToLv1() ChannelAccessLv1 {
 	return ChannelAccessLv1{
 		Ch:       ch.Ch,
@@ -22,15 +22,15 @@ func (ch *ChannelAccess) ToLv1() ChannelAccessLv1 {
 	}
 }
 
-// ChannelAccessLv1 は簡易的なチャンネルアクセス情報を保持する構造体です。
-// チャンネルIDと書き込みキーのみを含む軽量な構造体です。
+// ChannelAccessLv1 は簡易的なチャネルアクセス情報を保持する構造体です。
+// チャネルIDと書き込みキーのみを含む軽量な構造体です。
 type ChannelAccessLv1 struct {
 	Ch       string
 	WriteKey string
 }
 
-// ChannelInfo はチャンネルの詳細情報を保持する構造体です。
-// チャンネルの基本情報、フィールド情報、最新データなどを含みます。
+// ChannelInfo はチャネルの詳細情報を保持する構造体です。
+// チャネルの基本情報、フィールド情報、最新データなどを含みます。
 type ChannelInfo struct {
 	Ch         string
 	User       string
@@ -107,14 +107,14 @@ func FieldColorToRGBA(c FieldColor) (color.RGBA, bool) {
 	return rgba, ok
 }
 
-// LastData はチャンネルの最新データを表す構造体です。
+// LastData はチャネルの最新データを表す構造体です。
 // 通常のデータに加えて、データのIDを含みます。
 type LastData struct {
 	Data
 	ID string
 }
 
-// Data はチャンネルに保存されるデータポイントを表す構造体です。
+// Data はチャネルに保存されるデータポイントを表す構造体です。
 // タイムスタンプ、8つの数値フィールド、位置情報、コメント、表示/非表示状態を含みます。
 type Data struct {
 	Created time.Time

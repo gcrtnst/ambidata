@@ -7,7 +7,7 @@ import (
 )
 
 // Sender はambidataにデータを送信するためのクライアントです。
-// チャンネルIDと書き込みキーを使用して、特定のチャンネルにデータを送信します。
+// チャネルIDと書き込みキーを使用して、特定のチャネルにデータを送信します。
 type Sender struct {
 	Ch       string
 	WriteKey string
@@ -15,24 +15,24 @@ type Sender struct {
 }
 
 // NewSender は新しいSenderインスタンスを作成します。
-// チャンネルIDと書き込みキーを指定して、データ送信用のクライアントを初期化します。
+// チャネルIDと書き込みキーを指定して、データ送信用のクライアントを初期化します。
 func NewSender(ch string, writeKey string) *Sender {
 	return &Sender{Ch: ch, WriteKey: writeKey}
 }
 
 // NewSenderFromChannelAccess はChannelAccessオブジェクトから新しいSenderインスタンスを作成します。
-// ChannelAccessに含まれるチャンネルIDと書き込みキーを使用してSenderを初期化します。
+// ChannelAccessに含まれるチャネルIDと書き込みキーを使用してSenderを初期化します。
 func NewSenderFromChannelAccess(ca *ChannelAccess) *Sender {
 	return NewSender(ca.Ch, ca.WriteKey)
 }
 
 // NewSenderFromChannelAccessLv1 はChannelAccessLv1オブジェクトから新しいSenderインスタンスを作成します。
-// ChannelAccessLv1に含まれるチャンネルIDと書き込みキーを使用してSenderを初期化します。
+// ChannelAccessLv1に含まれるチャネルIDと書き込みキーを使用してSenderを初期化します。
 func NewSenderFromChannelAccessLv1(ca1 *ChannelAccessLv1) *Sender {
 	return NewSender(ca1.Ch, ca1.WriteKey)
 }
 
-// Send は単一のデータポイントをチャンネルに送信します。
+// Send は単一のデータポイントをチャネルに送信します。
 // 指定されたデータオブジェクトをJSON形式に変換してAPIに送信します。
 func (s *Sender) Send(ctx context.Context, data Data) error {
 	j := jsonSendDataRequest{
@@ -44,7 +44,7 @@ func (s *Sender) Send(ctx context.Context, data Data) error {
 	return httpPost(ctx, s.Config, path, j)
 }
 
-// SendBulk は複数のデータポイントを一括でチャンネルに送信します。
+// SendBulk は複数のデータポイントを一括でチャネルに送信します。
 // データの配列をJSON形式に変換して一度のAPIリクエストで送信します。
 // 大量のデータを効率的に送信する場合に使用します。
 func (s *Sender) SendBulk(ctx context.Context, arr []Data) error {

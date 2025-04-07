@@ -5,21 +5,21 @@ import (
 	"net/url"
 )
 
-// Manager はambidataのチャンネル管理機能を提供するクライアントです。
-// ユーザーキーを使用して、チャンネルの一覧取得やデータの削除などの管理操作を行います。
+// Manager はambidataのチャネル管理機能を提供するクライアントです。
+// ユーザーキーを使用して、チャネルの一覧取得やデータの削除などの管理操作を行います。
 type Manager struct {
 	UserKey string
 	Config  *Config
 }
 
 // NewManager は新しいManagerインスタンスを作成します。
-// ユーザーキーを指定して、チャンネル管理用のクライアントを初期化します。
+// ユーザーキーを指定して、チャネル管理用のクライアントを初期化します。
 func NewManager(userKey string) *Manager {
 	return &Manager{UserKey: userKey}
 }
 
-// GetChannelList はユーザーが所有するすべてのチャンネルのリストを取得します。
-// 各チャンネルのアクセス情報（読み取りキーと書き込みキーを含む）を返します。
+// GetChannelList はユーザーが所有するすべてのチャネルのリストを取得します。
+// 各チャネルのアクセス情報（読み取りキーと書き込みキーを含む）を返します。
 func (m *Manager) GetChannelList(ctx context.Context) ([]ChannelAccess, error) {
 	var j jsonRecvChannelAccessList
 	err := m.httpGet(ctx, "/api/v2/channels/", nil, &j)
@@ -31,8 +31,8 @@ func (m *Manager) GetChannelList(ctx context.Context) ([]ChannelAccess, error) {
 	return ret, nil
 }
 
-// GetDeviceChannel はデバイスキーに関連付けられたチャンネルのアクセス情報を取得します。
-// チャンネル情報と読み取りキー、書き込みキーを含むChannelAccessオブジェクトを返します。
+// GetDeviceChannel はデバイスキーに関連付けられたチャネルのアクセス情報を取得します。
+// チャネル情報と読み取りキー、書き込みキーを含むChannelAccessオブジェクトを返します。
 func (m *Manager) GetDeviceChannel(ctx context.Context, devKey string) (ChannelAccess, error) {
 	var j jsonRecvChannelAccess
 	query := url.Values{"devKey": []string{devKey}}
@@ -45,8 +45,8 @@ func (m *Manager) GetDeviceChannel(ctx context.Context, devKey string) (ChannelA
 	return ret, nil
 }
 
-// GetDeviceChannelLv1 はデバイスキーに関連付けられたチャンネルのレベル1アクセス情報を取得します。
-// チャンネルIDと書き込みキーのみを含む簡易的なアクセス情報を返します。
+// GetDeviceChannelLv1 はデバイスキーに関連付けられたチャネルのレベル1アクセス情報を取得します。
+// チャネルIDと書き込みキーのみを含む簡易的なアクセス情報を返します。
 func (m *Manager) GetDeviceChannelLv1(ctx context.Context, devKey string) (ChannelAccessLv1, error) {
 	var j jsonRecvChannelAccessLv1
 	query := url.Values{"devKey": []string{devKey}, "level": []string{"1"}}
@@ -59,7 +59,7 @@ func (m *Manager) GetDeviceChannelLv1(ctx context.Context, devKey string) (Chann
 	return ret, nil
 }
 
-// DeleteData は指定されたチャンネルのすべてのデータを削除します。
+// DeleteData は指定されたチャネルのすべてのデータを削除します。
 // この操作は元に戻せないため、注意して使用してください。
 func (m *Manager) DeleteData(ctx context.Context, ch string) error {
 	path := "/api/v2/channels/" + url.PathEscape(ch) + "/data"
