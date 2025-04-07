@@ -27,6 +27,9 @@ type ChannelAccessLv1 struct {
 }
 
 // ChannelInfo はチャネルの詳細情報を保持する構造体です。
+//
+// サーバー側の挙動: チャネル情報の形式は公式ライブラリやリファレンスでは明示されていないため、
+// この構造体のフィールドの多くは本パッケージ開発者の推測に基づいています。
 type ChannelInfo struct {
 	Ch         string          // チャネルID
 	User       string          // ユーザーID

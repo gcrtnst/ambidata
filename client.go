@@ -90,7 +90,7 @@ func (err *APIError) Unwrap() error {
 // StatusCodeError は HTTP ステータスコードに関連するエラーを表す構造体です。
 // 200 OK 以外のステータスコードが返された場合に使用されます。
 //
-// 本パッケージから返される StatusCodeError は、全て APIError によってラップされています。
+// 本パッケージから返される StatusCodeError は、全て [APIError] によってラップされています。
 type StatusCodeError struct {
 	StatusCode int
 }
