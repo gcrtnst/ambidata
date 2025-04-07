@@ -39,7 +39,7 @@ func (f *Fetcher) FetchRange(ctx context.Context, n int, skip int) ([]Data, erro
 		err := fmt.Errorf("ambidata: (*Fetcher).FetchRange: n and skip must be non-negative (n=%d, skip=%d)", n, skip)
 		return nil, err
 	}
-	if n-skip <= 0 {
+	if n <= 0 {
 		return []Data{}, nil
 	}
 

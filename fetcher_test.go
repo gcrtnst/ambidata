@@ -356,53 +356,6 @@ func TestFetcherFetchRangeZeroN(t *testing.T) {
 	}
 }
 
-func TestFetcherFetchRangeNEqualSkip(t *testing.T) {
-	const inN = 1
-	const inSkip = 1
-	const inCh = "83601"
-	const inReadKey = "74545caba2bfd44f"
-	const inBody = `[{"created":"1970-01-01T02:00:00.000Z"},{"d1":101,"d2":102,"d3":103,"d4":104,"d5":105,"d6":106,"d7":107,"d8":108,"loc":[110,109],"cmnt":"111","hide":true,"created":"1970-01-01T01:00:00.000Z"}]`
-	wantRet := []Data{}
-
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
-	defer cancel()
-
-	var gotReq *http.Request
-	mux := http.NewServeMux()
-	mux.Handle("/", http.NotFoundHandler())
-	mux.HandleFunc("GET /api/v2/channels/"+inCh+"/data", func(w http.ResponseWriter, r *http.Request) {
-		gotReq = r
-		w.Write([]byte(inBody))
-	})
-
-	srv := httptest.NewServer(mux)
-	defer srv.Close()
-	srvURL, _ := url.Parse(srv.URL)
-
-	f := &Fetcher{
-		Ch:      inCh,
-		ReadKey: inReadKey,
-		Config: &Config{
-			Scheme: srvURL.Scheme,
-			Host:   srvURL.Host,
-			Client: srv.Client(),
-		},
-	}
-
-	gotRet, gotErr := f.FetchRange(ctx, inN, inSkip)
-	if gotErr != nil {
-		t.Fatalf("err: %v", gotErr)
-	}
-
-	if diff := cmp.Diff(wantRet, gotRet); diff != "" {
-		t.Errorf("ret: mismatch (-want, +got)\n%s", diff)
-	}
-
-	if gotReq != nil {
-		t.Errorf("request: unexpected HTTP request received")
-	}
-}
-
 func TestFetcherFetchRangeOmitSkip(t *testing.T) {
 	const inN = 3
 	const inSkip = 0
