@@ -1,4 +1,4 @@
-// Package ambidata は、Ambient API と連携するためのクライアントライブラリを提供します。
+// Package ambidata は、Ambient と連携するためのクライアントライブラリを提供します。
 package ambidata
 
 import (
