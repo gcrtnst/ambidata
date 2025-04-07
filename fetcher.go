@@ -8,28 +8,27 @@ import (
 	"time"
 )
 
-// Fetcher はambidataからデータを取得するためのクライアントです。
-// チャネルIDと読み取りキーを使用して、特定のチャネルからデータを取得します。
+// Fetcher は Ambient からデータを取得するためのクライアントです。
 type Fetcher struct {
-	Ch      string
-	ReadKey string
-	Config  *Config
+	Ch      string // チャネルID
+	ReadKey string // リードキー
+
+	// Config は Fetcher の設定を保持します。
+	// nil の場合は、デフォルトの設定が使用されます。
+	Config *Config
 }
 
-// NewFetcher は新しいFetcherインスタンスを作成します。
-// チャネルIDと読み取りキーを指定して、データ取得用のクライアントを初期化します。
+// NewFetcher は新しい [Fetcher] インスタンスを作成します。
 func NewFetcher(ch string, readKey string) *Fetcher {
 	return &Fetcher{Ch: ch, ReadKey: readKey}
 }
 
-// NewFetcherFromChannelAccess はChannelAccessオブジェクトから新しいFetcherインスタンスを作成します。
-// ChannelAccessに含まれるチャネルIDと読み取りキーを使用してFetcherを初期化します。
+// NewFetcherFromChannelAccess は [ChannelAccess] オブジェクトから新しい [Fetcher] インスタンスを作成します。
 func NewFetcherFromChannelAccess(ca *ChannelAccess) *Fetcher {
 	return NewFetcher(ca.Ch, ca.ReadKey)
 }
 
 // GetChannel はチャネルの詳細情報を取得します。
-// 指定されたコンテキストを使用してAPIリクエストを実行し、チャネル情報を返します。
 func (f *Fetcher) GetChannel(ctx context.Context) (ChannelInfo, error) {
 	path := "/api/v2/channels/" + url.PathEscape(f.Ch) + "/"
 	var j jsonRecvChannelInfo
@@ -43,8 +42,8 @@ func (f *Fetcher) GetChannel(ctx context.Context) (ChannelInfo, error) {
 }
 
 // FetchRange は指定された範囲のデータを取得します。
-// n個のデータを取得し、skip個のデータをスキップします。
-// nとskipは非負の値である必要があります。
+// 最新から skip 件のデータを読み飛ばし、その先 n 件のデータを取得します。
+// n と skip は非負の値である必要があります。
 func (f *Fetcher) FetchRange(ctx context.Context, n int, skip int) ([]Data, error) {
 	if n < 0 || skip < 0 {
 		err := fmt.Errorf("ambidata: (*Fetcher).FetchRange: n and skip must be non-negative (n=%d, skip=%d)", n, skip)
