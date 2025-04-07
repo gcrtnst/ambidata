@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Fetcher は Ambient からデータを取得するためのクライアントです。
+// Fetcher は Ambient からデータを取得するクライアントです。
 type Fetcher struct {
 	Ch      string // チャネルID
 	ReadKey string // リードキー
@@ -18,12 +18,12 @@ type Fetcher struct {
 	Config *Config
 }
 
-// NewFetcher は新しい [Fetcher] インスタンスを作成します。
+// NewFetcher は新しい [Fetcher] を作成します。
 func NewFetcher(ch string, readKey string) *Fetcher {
 	return &Fetcher{Ch: ch, ReadKey: readKey}
 }
 
-// NewFetcherFromChannelAccess は [ChannelAccess] オブジェクトから新しい [Fetcher] インスタンスを作成します。
+// NewFetcherFromChannelAccess は [ChannelAccess] を基に新しい [Fetcher] を作成します。
 func NewFetcherFromChannelAccess(ca *ChannelAccess) *Fetcher {
 	return NewFetcher(ca.Ch, ca.ReadKey)
 }

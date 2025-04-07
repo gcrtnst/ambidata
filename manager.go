@@ -14,7 +14,7 @@ type Manager struct {
 	Config *Config
 }
 
-// NewManager は新しい [Manager] インスタンスを作成します。
+// NewManager は新しい [Manager] を作成します。
 func NewManager(userKey string) *Manager {
 	return &Manager{UserKey: userKey}
 }
