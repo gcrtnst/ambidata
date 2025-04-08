@@ -33,7 +33,10 @@ func NewSenderFromChannelAccessLv1(ca1 *ChannelAccessLv1) *Sender {
 
 // Send は単一のデータポイントをチャネルに送信します。
 //
-// [Data.Created] フィールドにゼロ値を指定した場合、サーバー側で現在時刻が設定されます。
+// [Data.Created] にゼロ値を指定した場合、サーバー側で現在時刻が設定されます。
+//
+// 推測に基づく情報: [Data.Cmnt] の最大長は 64 バイトのようです。
+// 最大長を超えた部分はサーバーによって切り捨てられます。
 //
 // Send は [Data.Hide] フィールドを送信しません。
 // [Data.Hide] フィールドを設定するには、データポイントを送信した後に、
@@ -50,7 +53,10 @@ func (s *Sender) Send(ctx context.Context, data Data) error {
 
 // SendBulk は複数のデータポイントを一括でチャネルに送信します。
 //
-// [Data.Created] フィールドにゼロ値を指定した場合、サーバー側で現在時刻が設定されます。
+// [Data.Created] にゼロ値を指定した場合、サーバー側で現在時刻が設定されます。
+//
+// 推測に基づく情報: [Data.Cmnt] の最大長は 64 バイトのようです。
+// 最大長を超えた部分はサーバーによって切り捨てられます。
 //
 // SendBulk は [Data.Hide] フィールドを送信しません。
 // [Data.Hide] フィールドを設定するには、データポイントを送信した後に、
