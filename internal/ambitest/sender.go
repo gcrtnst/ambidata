@@ -144,6 +144,8 @@ func TestSenderSendBulkTooLarge(t *T) {
 		Cmnt:    strings.Repeat("-", 64),
 	}
 
+	// ここで確認した最大数を [ambidata.Sender.SendBulk] の
+	// Doc comment に記載しています。
 	const maxlen = 258
 	arrOK := slices.Repeat([]ambidata.Data{data}, maxlen)
 	arrNG := slices.Repeat([]ambidata.Data{data}, maxlen+1)

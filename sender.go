@@ -64,7 +64,12 @@ func (s *Sender) Send(ctx context.Context, data Data) error {
 //
 // 送信するデータポイントが多すぎる場合、リクエストボディのサイズ制限を超過して、
 // [ErrRequestEntityTooLarge] エラーが発生することがあります。
+// 推測に基づく情報: リクエストボディの最大サイズは 102400 byte のようです。
+// 逆算すると、データポイントが 258 個以内であれば、最大サイズを超えることはありません。
 func (s *Sender) SendBulk(ctx context.Context, arr []Data) error {
+	// Doc comment についてのメモ:
+	// データポイントの最大数は ambitest.TestSenderSendBulkTooLarge でテストしています。
+
 	j := jsonSendDataListRequest{
 		WriteKey: s.WriteKey,
 		Data:     toJSONSendDataList(arr),
