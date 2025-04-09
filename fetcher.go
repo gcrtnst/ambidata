@@ -44,6 +44,7 @@ func (f *Fetcher) GetChannel(ctx context.Context) (ChannelInfo, error) {
 // FetchRange は指定された範囲のデータを取得します。
 // 最新から skip 件のデータを読み飛ばし、その先 n 件のデータを取得します。
 // n と skip は非負の値である必要があります。
+// データは新しいものから古いものの順に並びます。
 func (f *Fetcher) FetchRange(ctx context.Context, n int, skip int) ([]Data, error) {
 	if n < 0 || skip < 0 {
 		err := fmt.Errorf("ambidata: (*Fetcher).FetchRange: n and skip must be non-negative (n=%d, skip=%d)", n, skip)
@@ -72,6 +73,7 @@ func (f *Fetcher) FetchRange(ctx context.Context, n int, skip int) ([]Data, erro
 // FetchPeriod は指定された期間のデータを取得します。
 // 開始時刻から終了時刻までの間に作成されたデータを返します。
 // 開始時刻が終了時刻より後の場合は空のスライスを返します。
+// データは新しいものから古いものの順に並びます。
 func (f *Fetcher) FetchPeriod(ctx context.Context, start time.Time, end time.Time) ([]Data, error) {
 	if !start.Before(end) {
 		return []Data{}, nil
