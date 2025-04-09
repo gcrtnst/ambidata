@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
+	"math"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/gcrtnst/ambidata"
@@ -119,6 +123,58 @@ func TestSenderSendBulk(t *T) {
 	}
 
 	assertCmp(t, "dataarray: ", a1, a2)
+}
+
+func TestSenderSendBulkTooLarge(t *T) {
+	ctx := context.Background()
+	m := ambidata.NewManager(t.Config.UserKey)
+	s := ambidata.NewSender(t.Config.Ch, t.Config.WriteKey)
+
+	data := ambidata.Data{
+		Created: time.Date(2006, 1, 2, 15, 4, 5, 999999999, time.FixedZone("UTC+7", 7*60*60)),
+		D1:      ambidata.Just(-math.Nextafter(1e-6, 0)),
+		D2:      ambidata.Just(-math.Nextafter(1e-6, 0)),
+		D3:      ambidata.Just(-math.Nextafter(1e-6, 0)),
+		D4:      ambidata.Just(-math.Nextafter(1e-6, 0)),
+		D5:      ambidata.Just(-math.Nextafter(1e-6, 0)),
+		D6:      ambidata.Just(-math.Nextafter(1e-6, 0)),
+		D7:      ambidata.Just(-math.Nextafter(1e-6, 0)),
+		D8:      ambidata.Just(-math.Nextafter(1e-6, 0)),
+		Loc:     ambidata.Just(ambidata.Location{Lat: -math.Nextafter(1e-6, 0), Lng: -math.Nextafter(1e-6, 0)}),
+		Cmnt:    strings.Repeat("-", 64),
+	}
+
+	const maxlen = 258
+	arrOK := slices.Repeat([]ambidata.Data{data}, maxlen)
+	arrNG := slices.Repeat([]ambidata.Data{data}, maxlen+1)
+
+	errDelOK := m.DeleteData(ctx, t.Config.Ch)
+	if errDelOK != nil {
+		t.Error(errDelOK)
+		return
+	}
+
+	t.PostWait()
+	errSendOK := s.SendBulk(ctx, arrOK)
+	t.PostDone()
+	if errSendOK != nil {
+		t.Errorf("errSendOK: expected nil, got %#v", errSendOK)
+		return
+	}
+
+	errDelNG := m.DeleteData(ctx, t.Config.Ch)
+	if errDelNG != nil {
+		t.Error(errDelOK)
+		return
+	}
+
+	t.PostWait()
+	errSendNG := s.SendBulk(ctx, arrNG)
+	t.PostDone()
+	if !errors.Is(errSendNG, ambidata.ErrRequestEntityTooLarge) {
+		t.Errorf("errSendNG: expected ErrRequestEntityTooLarge, got %#v", errSendNG)
+		return
+	}
 }
 
 func TestSenderSetCmnt(t *T) {

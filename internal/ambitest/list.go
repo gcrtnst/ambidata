@@ -7,6 +7,7 @@ var TestList = []TestEntry{
 	{"TestManagerDeleteData", TestManagerDeleteData},
 	{"TestSenderSend", TestSenderSend},
 	{"TestSenderSendBulk", TestSenderSendBulk},
+	{"TestSenderSendBulkTooLarge", TestSenderSendBulkTooLarge},
 	{"TestSenderSetCmnt", TestSenderSetCmnt},
 	{"TestSenderSetHide", TestSenderSetHide},
 	{"TestFetcherGetChannel", TestFetcherGetChannel},
