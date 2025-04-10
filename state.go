@@ -1,5 +1,8 @@
 package ambidata
 
+// 状態表示チャートで使用する色。詳細は [公式ドキュメント] を参照ください。
+//
+// [公式ドキュメント]: https://ambidata.io/docs/state/
 const (
 	StateColorNone = iota
 
