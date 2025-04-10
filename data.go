@@ -51,42 +51,42 @@ type ChannelInfo struct {
 
 type FieldInfo struct {
 	Name  string
-	Color Color
+	Color FieldColor
 }
 
-type Color string
+type FieldColor string
 
 const (
-	ColorBlue    Color = "1"
-	ColorRed     Color = "2"
-	ColorOrange  Color = "3"
-	ColorPurple  Color = "4"
-	ColorGreen   Color = "5"
-	ColorSkyBlue Color = "6"
-	ColorPink    Color = "7"
-	ColorBrown   Color = "8"
-	ColorOlive   Color = "9"
-	ColorCyan    Color = "10"
-	ColorYellow  Color = "11"
-	ColorBlack   Color = "12"
+	FieldColorBlue    FieldColor = "1"
+	FieldColorRed     FieldColor = "2"
+	FieldColorOrange  FieldColor = "3"
+	FieldColorPurple  FieldColor = "4"
+	FieldColorGreen   FieldColor = "5"
+	FieldColorSkyBlue FieldColor = "6"
+	FieldColorPink    FieldColor = "7"
+	FieldColorBrown   FieldColor = "8"
+	FieldColorOlive   FieldColor = "9"
+	FieldColorCyan    FieldColor = "10"
+	FieldColorYellow  FieldColor = "11"
+	FieldColorBlack   FieldColor = "12"
 )
 
-var colorMap = map[Color]color.RGBA{
-	ColorBlue:    {0x3B, 0x59, 0x98, 0xFF},
-	ColorRed:     {0xdc, 0x39, 0x12, 0xFF},
-	ColorOrange:  {0xFF, 0x99, 0x00, 0xFF},
-	ColorPurple:  {0x99, 0x00, 0x99, 0xFF},
-	ColorGreen:   {0x10, 0x96, 0x18, 0xFF},
-	ColorSkyBlue: {0x00, 0x99, 0xC6, 0xFF},
-	ColorPink:    {0xDD, 0x44, 0x77, 0xFF},
-	ColorBrown:   {0x99, 0x66, 0x33, 0xFF},
-	ColorOlive:   {0x66, 0xAA, 0x00, 0xFF},
-	ColorCyan:    {0x00, 0xFF, 0xFF, 0xFF},
-	ColorYellow:  {0xFF, 0xFF, 0x00, 0xFF},
-	ColorBlack:   {0x00, 0x00, 0x00, 0xFF},
+var colorMap = map[FieldColor]color.RGBA{
+	FieldColorBlue:    {0x3B, 0x59, 0x98, 0xFF},
+	FieldColorRed:     {0xDC, 0x39, 0x12, 0xFF},
+	FieldColorOrange:  {0xFF, 0x99, 0x00, 0xFF},
+	FieldColorPurple:  {0x99, 0x00, 0x99, 0xFF},
+	FieldColorGreen:   {0x10, 0x96, 0x18, 0xFF},
+	FieldColorSkyBlue: {0x00, 0x99, 0xC6, 0xFF},
+	FieldColorPink:    {0xDD, 0x44, 0x77, 0xFF},
+	FieldColorBrown:   {0x99, 0x66, 0x33, 0xFF},
+	FieldColorOlive:   {0x66, 0xAA, 0x00, 0xFF},
+	FieldColorCyan:    {0x00, 0xFF, 0xFF, 0xFF},
+	FieldColorYellow:  {0xFF, 0xFF, 0x00, 0xFF},
+	FieldColorBlack:   {0x00, 0x00, 0x00, 0xFF},
 }
 
-func ColorToRGBA(c Color) (color.RGBA, bool) {
+func FieldColorToRGBA(c FieldColor) (color.RGBA, bool) {
 	rgba, ok := colorMap[c]
 	return rgba, ok
 }

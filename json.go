@@ -93,8 +93,8 @@ func (j *jsonRecvChannelInfo) ToChannelInfo() ChannelInfo {
 }
 
 type jsonFieldInfo struct {
-	Name  string `json:"name,omitzero"`
-	Color Color  `json:"color,omitzero"`
+	Name  string     `json:"name,omitzero"`
+	Color FieldColor `json:"color,omitzero"`
 }
 
 type jsonRecvLastData struct {

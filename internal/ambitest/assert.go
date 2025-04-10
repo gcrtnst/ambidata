@@ -58,8 +58,8 @@ func assertTimeIsBetween(t *T, prefix string, stt time.Time, end time.Time, got 
 	}
 }
 
-func assertColor(t *T, prefix string, got ambidata.Color) {
-	if _, ok := ambidata.ColorToRGBA(got); !ok {
+func assertFieldColor(t *T, prefix string, got ambidata.FieldColor) {
+	if _, ok := ambidata.FieldColorToRGBA(got); !ok {
 		t.Errorf("%sexpected a known color index, got %#v", prefix, got)
 	}
 }
