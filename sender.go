@@ -64,8 +64,10 @@ func (s *Sender) Send(ctx context.Context, data Data) error {
 //
 // 送信するデータポイントが多すぎる場合、リクエストボディのサイズ制限を超過して、
 // [ErrRequestEntityTooLarge] エラーが発生することがあります。
-// 推測に基づく情報: リクエストボディの最大サイズは 102400 byte のようです。
-// 逆算すると、データポイントが 258 個以内であれば、最大サイズを超えることはありません。
+// 推測に基づく情報: 執筆時点では、データポイントが 258 個以内であれば、
+// サイズ制限に達しないようです。ただし、この個数は今後サーバー/クライアント双方の
+// 更新によって変化する可能性があります。そのため、一度に送信する個数は、
+// サイズ制限から余裕を持たせて、200 個以内にすることをお勧めします。
 func (s *Sender) SendBulk(ctx context.Context, arr []Data) error {
 	// Doc comment についてのメモ:
 	// データポイントの最大数は ambitest.TestSenderSendBulkTooLarge でテストしています。
@@ -80,6 +82,9 @@ func (s *Sender) SendBulk(ctx context.Context, arr []Data) error {
 }
 
 // SetCmnt は指定された時刻のデータポイントにコメントを設定します。
+//
+// 推測に基づく情報: 指定された時刻に該当するデータポイントが複数存在する場合、
+// そのうちのどれか1つにコメントが設定されます。
 func (s *Sender) SetCmnt(ctx context.Context, created time.Time, cmnt string) error {
 	j := jsonSendCmnt{
 		WriteKey: s.WriteKey,
@@ -92,6 +97,9 @@ func (s *Sender) SetCmnt(ctx context.Context, created time.Time, cmnt string) er
 }
 
 // SetHide は指定された時刻のデータポイントの表示/非表示状態を設定します。
+//
+// 推測に基づく情報: 指定された時刻に該当するデータポイントが複数存在する場合、
+// そのうちのどれか1つに表示/非表示状態が設定されます。
 func (s *Sender) SetHide(ctx context.Context, created time.Time, hide bool) error {
 	j := jsonSendHide{
 		WriteKey: s.WriteKey,
