@@ -92,6 +92,9 @@ func (s *Sender) SendBulk(ctx context.Context, arr []Data) error {
 // 推測に基づく情報: コメントの最大長は 64 バイトのようです。
 // 最大長を超えた部分はサーバーによって切り捨てられます。
 //
+// 推測に基づく情報: Ambient サーバーにおける時刻の精度はミリ秒単位のようです。
+// より高精度な時刻を指定した場合、ミリ秒単位になるように切り捨てられます。
+//
 // 推測に基づく情報: 指定された時刻に該当するデータポイントが複数存在する場合、
 // そのうちのどれか1つにコメントが設定されます。
 func (s *Sender) SetCmnt(ctx context.Context, created time.Time, cmnt string) error {
@@ -106,6 +109,9 @@ func (s *Sender) SetCmnt(ctx context.Context, created time.Time, cmnt string) er
 }
 
 // SetHide は指定された時刻のデータポイントの表示/非表示状態を設定します。
+//
+// 推測に基づく情報: Ambient サーバーにおける時刻の精度はミリ秒単位のようです。
+// より高精度な時刻を指定した場合、ミリ秒単位になるように切り捨てられます。
 //
 // 推測に基づく情報: 指定された時刻に該当するデータポイントが複数存在する場合、
 // そのうちのどれか1つに表示/非表示状態が設定されます。
