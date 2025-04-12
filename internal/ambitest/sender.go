@@ -54,6 +54,38 @@ func TestSenderSend(t *T) {
 	assertCmp(t, "dataarray: ", []ambidata.Data{data}, a)
 }
 
+func TestSenderSendTimePrecision(t *T) {
+	ctx := context.Background()
+	m := ambidata.NewManager(t.Config.UserKey)
+	f := ambidata.NewFetcher(t.Config.Ch, t.Config.ReadKey)
+	s := ambidata.NewSender(t.Config.Ch, t.Config.WriteKey)
+
+	in := ambidata.Data{Created: time.Date(2006, 1, 2, 15, 4, 5, 999999999, time.UTC)}
+	want := ambidata.Data{Created: time.Date(2006, 1, 2, 15, 4, 5, 999000000, time.UTC)}
+
+	errDel := m.DeleteData(ctx, t.Config.Ch)
+	if errDel != nil {
+		t.Error(errDel)
+		return
+	}
+
+	t.PostWait()
+	errSend := s.Send(ctx, in)
+	t.PostDone()
+	if errSend != nil {
+		t.Error(errSend)
+		return
+	}
+
+	got, errFetch := f.FetchRange(ctx, 1, 0)
+	if errFetch != nil {
+		t.Error(errFetch)
+		return
+	}
+
+	assertCmp(t, "dataarray: ", []ambidata.Data{want}, got)
+}
+
 func TestSenderSendBulk(t *T) {
 	ctx := context.Background()
 	m := ambidata.NewManager(t.Config.UserKey)
