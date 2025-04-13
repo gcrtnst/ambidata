@@ -35,6 +35,10 @@ func (s *Sender) Send(ctx context.Context, data Data) error {
 }
 
 func (s *Sender) SendBulk(ctx context.Context, arr []Data) error {
+	if len(arr) <= 0 {
+		return nil
+	}
+
 	j := jsonSendDataListRequest{
 		WriteKey: s.WriteKey,
 		Data:     toJSONSendDataList(arr),

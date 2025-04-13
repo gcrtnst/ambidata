@@ -426,6 +426,48 @@ func TestSenderSendBulkNormal(t *testing.T) {
 	}
 }
 
+func TestSenderSendBulkEmpty(t *testing.T) {
+	const inCh = "83601"
+	const inWriteKey = "52e2cd7ddbfe2fed"
+	const inCode = 200
+	const inBody = ""
+	inArr := []Data{}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	var gotReq bool
+	mux := http.NewServeMux()
+	mux.Handle("/", http.NotFoundHandler())
+	mux.HandleFunc("POST /api/v2/channels/"+inCh+"/dataarray", func(w http.ResponseWriter, r *http.Request) {
+		gotReq = true
+		w.WriteHeader(inCode)
+		w.Write([]byte(inBody))
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	srvURL, _ := url.Parse(srv.URL)
+
+	s := &Sender{
+		Ch:       inCh,
+		WriteKey: inWriteKey,
+		Config: &Config{
+			Scheme: srvURL.Scheme,
+			Host:   srvURL.Host,
+			Client: srv.Client(),
+		},
+	}
+
+	gotErr := s.SendBulk(ctx, inArr)
+	if gotErr != nil {
+		t.Fatalf("err: %v", gotErr)
+	}
+	if gotReq {
+		t.Errorf("request: unexpected HTTP request received")
+	}
+}
+
 func TestSenderSendBulkErrNaN(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
@@ -471,7 +513,7 @@ func TestSenderSendBulkErrNaN(t *testing.T) {
 func TestSenderSendBulkErrCanceled(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
-	inArr := []Data{}
+	inArr := []Data{{}}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	cancel()
@@ -504,7 +546,7 @@ func TestSenderSendBulkErrCanceled(t *testing.T) {
 func TestSenderSendBulkErrStatus(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
-	inArr := []Data{}
+	inArr := []Data{{}}
 	const wantMethod = "POST"
 	const wantPath = "/api/v2/channels/83601/dataarray"
 	wantQuery := url.Values{}
@@ -552,7 +594,7 @@ func TestSenderSendBulkErrRequestEntityTooLarge(t *testing.T) {
 	const inWriteKey = "52e2cd7ddbfe2fed"
 	const inCode = 200
 	const inBody = "request entity too large"
-	inArr := []Data{}
+	inArr := []Data{{}}
 	const wantMethod = "POST"
 	const wantPath = "/api/v2/channels/83601/dataarray"
 	wantQuery := url.Values{}
