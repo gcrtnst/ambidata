@@ -862,7 +862,6 @@ func TestFetcherFetchPeriodErrJSON(t *testing.T) {
 	const inReadKey = "74545caba2bfd44f"
 	inStart := time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC)
 	inEnd := time.Date(1970, 1, 1, 2, 0, 1, 0, time.UTC)
-	const inBody = `[{"created":"1970-01-01T02:00:00.000Z"},{"d1":101,"d2":102,"d3":103,"d4":104,"d5":105,"d6":106,"d7":107,"d8":108,"loc":[110,109],"cmnt":"111","hide":true,"created":"1970-01-01T01:00:00.000Z"}]`
 	const wantMethod = "GET"
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{
