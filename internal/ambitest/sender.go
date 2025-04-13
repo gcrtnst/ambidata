@@ -343,6 +343,57 @@ func TestSenderSetHide(t *T) {
 	assertCmp(t, "dataarray: ", []ambidata.Data{want}, a)
 }
 
+func TestSenderSetHideNonexistent(t *T) {
+	ctx := context.Background()
+	m := ambidata.NewManager(t.Config.UserKey)
+	f := ambidata.NewFetcher(t.Config.Ch, t.Config.ReadKey)
+	s := ambidata.NewSender(t.Config.Ch, t.Config.WriteKey)
+
+	sentCreated := time.Date(2006, 1, 2, 15, 4, 5, 999000000, time.UTC)
+	setCreated := time.Date(2006, 1, 2, 15, 4, 5, 998000000, time.UTC)
+
+	sent := []ambidata.Data{
+		{
+			Created: sentCreated,
+			D1:      ambidata.Just(101.0),
+			D2:      ambidata.Just(102.0),
+			D3:      ambidata.Just(103.0),
+			D4:      ambidata.Just(104.0),
+			D5:      ambidata.Just(105.0),
+			D6:      ambidata.Just(106.0),
+			D7:      ambidata.Just(107.0),
+			D8:      ambidata.Just(108.0),
+			Loc:     ambidata.Just(ambidata.Location{Lat: 109.0, Lng: 110.0}),
+			Cmnt:    "cmnt 1",
+		},
+	}
+	want := slices.Clone(sent)
+
+	errDel := m.DeleteData(ctx, t.Config.Ch)
+	if errDel != nil {
+		t.Error(errDel)
+		return
+	}
+
+	t.PostWait()
+	errSend := s.SendBulk(ctx, sent)
+	t.PostDone()
+	if errSend != nil {
+		t.Error(errSend)
+		return
+	}
+
+	s.SetHide(ctx, setCreated, true)
+
+	got, errFetch := f.FetchRange(ctx, len(want), 0)
+	if errFetch != nil {
+		t.Error(errFetch)
+		return
+	}
+
+	assertCmp(t, "dataarray: ", want, got)
+}
+
 func TestSenderSetHideMultiple(t *T) {
 	ctx := context.Background()
 	m := ambidata.NewManager(t.Config.UserKey)
