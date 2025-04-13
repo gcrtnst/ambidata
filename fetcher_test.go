@@ -60,7 +60,7 @@ func TestFetcherGetChannelNormal(t *testing.T) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -106,7 +106,7 @@ func TestFetcherGetChannelNormal(t *testing.T) {
 }
 
 func TestFetcherGetChannelErrCanceled(t *testing.T) {
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -141,7 +141,7 @@ func TestFetcherGetChannelErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -186,7 +186,7 @@ func TestFetcherGetChannelErrJSON(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -256,7 +256,7 @@ func TestFetcherFetchRangeNormal(t *testing.T) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -317,7 +317,7 @@ func TestFetcherFetchRangeZeroN(t *testing.T) {
 	const inBody = `[{"created":"1970-01-01T02:00:00.000Z"},{"d1":101,"d2":102,"d3":103,"d4":104,"d5":105,"d6":106,"d7":107,"d8":108,"loc":[110,109],"cmnt":"111","hide":true,"created":"1970-01-01T01:00:00.000Z"}]`
 	wantRet := []Data{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -384,7 +384,7 @@ func TestFetcherFetchRangeOmitSkip(t *testing.T) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -444,7 +444,7 @@ func TestFetcherFetchRangeErrNegativeN(t *testing.T) {
 	const inReadKey = "74545caba2bfd44f"
 	const wantErr = "ambidata: (*Fetcher).FetchRange: n and skip must be non-negative (n=-1, skip=0)"
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -479,7 +479,7 @@ func TestFetcherFetchRangeErrNegativeSkip(t *testing.T) {
 	const inReadKey = "74545caba2bfd44f"
 	const wantErr = "ambidata: (*Fetcher).FetchRange: n and skip must be non-negative (n=1, skip=-1)"
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -513,7 +513,7 @@ func TestFetcherFetchRangeErrCanceled(t *testing.T) {
 	const inCh = "83601"
 	const inReadKey = "74545caba2bfd44f"
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -553,7 +553,7 @@ func TestFetcherFetchRangeErrStatus(t *testing.T) {
 		"skip": []string{strconv.Itoa(inSkip)},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -603,7 +603,7 @@ func TestFetcherFetchRangeErrJSON(t *testing.T) {
 		"skip": []string{strconv.Itoa(inSkip)},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -673,7 +673,7 @@ func TestFetcherFetchPeriodNormal(t *testing.T) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -734,7 +734,7 @@ func TestFetcherFetchPeriodStartEqualEnd(t *testing.T) {
 	const inBody = `[{"created":"1970-01-01T02:00:00.000Z"},{"d1":101,"d2":102,"d3":103,"d4":104,"d5":105,"d6":106,"d7":107,"d8":108,"loc":[110,109],"cmnt":"111","hide":true,"created":"1970-01-01T01:00:00.000Z"}]`
 	wantRet := []Data{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -779,7 +779,7 @@ func TestFetcherFetchPeriodErrCanceled(t *testing.T) {
 	inStart := time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC)
 	inEnd := time.Date(1970, 1, 1, 2, 0, 1, 0, time.UTC)
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -819,7 +819,7 @@ func TestFetcherFetchPeriodStatus(t *testing.T) {
 		"end":   []string{"1970-01-01T02:00:01Z"},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -869,7 +869,7 @@ func TestFetcherFetchPeriodErrJSON(t *testing.T) {
 		"end":   []string{"1970-01-01T02:00:01Z"},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc

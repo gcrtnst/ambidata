@@ -53,7 +53,7 @@ func TestSenderSendNormal(t *testing.T) {
 		"cmnt":     "111",
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -111,7 +111,7 @@ func TestSenderSendEmpty(t *testing.T) {
 	inData := Data{}
 	wantJSON := map[string]any{"writeKey": inWriteKey}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -166,7 +166,7 @@ func TestSenderSendErrNaN(t *testing.T) {
 	const inBody = ""
 	inData := Data{D1: Just(math.NaN())}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq bool
@@ -206,7 +206,7 @@ func TestSenderSendErrCanceled(t *testing.T) {
 	const inWriteKey = "52e2cd7ddbfe2fed"
 	inData := Data{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -242,7 +242,7 @@ func TestSenderSendErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -290,7 +290,7 @@ func TestSenderSendErrRequestEntityTooLarge(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -378,7 +378,7 @@ func TestSenderSendBulkNormal(t *testing.T) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -433,7 +433,7 @@ func TestSenderSendBulkEmpty(t *testing.T) {
 	const inBody = ""
 	inArr := []Data{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq bool
@@ -475,7 +475,7 @@ func TestSenderSendBulkErrNaN(t *testing.T) {
 	const inBody = ""
 	inArr := []Data{{D1: Just(math.NaN())}}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq bool
@@ -515,7 +515,7 @@ func TestSenderSendBulkErrCanceled(t *testing.T) {
 	const inWriteKey = "52e2cd7ddbfe2fed"
 	inArr := []Data{{}}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -551,7 +551,7 @@ func TestSenderSendBulkErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/dataarray"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -599,7 +599,7 @@ func TestSenderSendBulkErrRequestEntityTooLarge(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/dataarray"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -656,7 +656,7 @@ func TestSenderSetCmntNormal(t *testing.T) {
 		"cmnt":     "comment",
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -712,7 +712,7 @@ func TestSenderSetCmntErrCanceled(t *testing.T) {
 	const inCode = 200
 	const inBody = "OK"
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -750,7 +750,7 @@ func TestSenderSetCmntErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -799,7 +799,7 @@ func TestSenderSetCmntErrRequestEntityTooLarge(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -856,7 +856,7 @@ func TestSenderSetHideNormal(t *testing.T) {
 		"hide":     true,
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -912,7 +912,7 @@ func TestSenderSetHideErrCanceled(t *testing.T) {
 	const inCode = 200
 	const inBody = "OK"
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -950,7 +950,7 @@ func TestSenderSetHideErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -999,7 +999,7 @@ func TestSenderSetHideErrRequestEntityTooLarge(t *testing.T) {
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc

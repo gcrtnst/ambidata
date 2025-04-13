@@ -78,7 +78,7 @@ func TestManagerGetChannelListNormal(t *testing.T) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -123,7 +123,7 @@ func TestManagerGetChannelListNormal(t *testing.T) {
 }
 
 func TestManagerGetChannelListErrCanceled(t *testing.T) {
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -155,7 +155,7 @@ func TestManagerGetChannelListErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -197,7 +197,7 @@ func TestManagerGetChannelListErrJSON(t *testing.T) {
 	const wantPath = "/api/v2/channels/"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -287,7 +287,7 @@ func TestManagerGetDeviceChannelNormal(t *testing.T) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -337,7 +337,7 @@ func TestManagerGetDeviceChannelNormal(t *testing.T) {
 }
 
 func TestManagerGetDeviceChannelErrCanceled(t *testing.T) {
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -370,7 +370,7 @@ func TestManagerGetDeviceChannelErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/"
 	wantQuery := url.Values{"devKey": []string{inDevKey}}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -413,7 +413,7 @@ func TestManagerGetDeviceChannelErrJSON(t *testing.T) {
 	const wantPath = "/api/v2/channels/"
 	wantQuery := url.Values{"devKey": []string{inDevKey}}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -464,7 +464,7 @@ func TestManagerGetDeviceChannelLv1Normal(t *testing.T) {
 		Ch:       "83601",
 	}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -517,7 +517,7 @@ func TestManagerGetDeviceChannelLv1Normal(t *testing.T) {
 }
 
 func TestManagerGetDeviceChannelLv1ErrCanceled(t *testing.T) {
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -550,7 +550,7 @@ func TestManagerGetDeviceChannelLv1ErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/"
 	wantQuery := url.Values{"devKey": []string{inDevKey}, "level": []string{"1"}}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
@@ -593,7 +593,7 @@ func TestManagerGetDeviceChannelLv1ErrJSON(t *testing.T) {
 	const wantPath = "/api/v2/channels/"
 	wantQuery := url.Values{"devKey": []string{inDevKey}, "level": []string{"1"}}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var handler http.HandlerFunc
@@ -637,7 +637,7 @@ func TestManagerDeleteDataNormal(t *testing.T) {
 	const inUserKey = "4ef42dcecf7e7ceba2"
 	const inCh = "83602"
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var gotReq *http.Request
@@ -678,7 +678,7 @@ func TestManagerDeleteDataNormal(t *testing.T) {
 }
 
 func TestManagerDeleteDataErrCanceled(t *testing.T) {
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 
 	var handler http.HandlerFunc
@@ -711,7 +711,7 @@ func TestManagerDeleteDataErrStatus(t *testing.T) {
 	const wantPath = "/api/v2/channels/" + inCh + "/data"
 	wantQuery := url.Values{}
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	srv := httptest.NewServer(http.NotFoundHandler())
