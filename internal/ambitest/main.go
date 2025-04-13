@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -15,6 +16,20 @@ func main() {
 }
 
 func Run(args []string, stdout io.Writer, stderr io.Writer) int {
+	var all bool
+	f := flag.NewFlagSet("ambitest", flag.ContinueOnError)
+	f.SetOutput(stderr)
+	f.BoolVar(&all, "all", false, "run all tests")
+
+	errFlag := f.Parse(args)
+	if errFlag == flag.ErrHelp {
+		return 0
+	}
+	if errFlag != nil {
+		fmt.Fprintf(stderr, "%s: %s\n", Name, errFlag.Error())
+		return 2
+	}
+
 	var cfg Config
 	cfg.Ch = os.Getenv("AMBITEST_CH")
 	cfg.UserKey = os.Getenv("AMBITEST_USERKEY")
@@ -24,15 +39,20 @@ func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 
 	t := &T{Config: &cfg}
 	fail := false
-	for _, f := range TestList {
+	for _, c := range TestList {
+		if !all && c.Extended {
+			fmt.Fprintf(stdout, "SKIP %s\n", c.Name)
+			continue
+		}
+
 		t.Failed = false
 		t.Output = nil
-		f.Func(t)
+		c.Func(t)
 
 		if t.Failed {
-			fmt.Fprintf(stdout, "FAIL %s\n", f.Name)
+			fmt.Fprintf(stdout, "FAIL %s\n", c.Name)
 		} else {
-			fmt.Fprintf(stdout, "PASS %s\n", f.Name)
+			fmt.Fprintf(stdout, "PASS %s\n", c.Name)
 		}
 
 		for _, s := range t.Output {
@@ -99,8 +119,9 @@ type Config struct {
 }
 
 type TestEntry struct {
-	Name string
-	Func TestFunc
+	Name     string
+	Func     TestFunc
+	Extended bool
 }
 
 type TestFunc func(*T)
