@@ -1,0 +1,31 @@
+name: Ambitest
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ambitest:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24.2'
+        check-latest: true
+
+    - name: Build ambitest
+      run: go build -v ./internal/ambitest
+
+    - name: Run ambitest
+      run: ./ambitest -all
+      env:
+        AMBITEST_CH: ${{ secrets.AMBITEST_CH }}
+        AMBITEST_USERKEY: ${{ secrets.AMBITEST_USERKEY }}
+        AMBITEST_READKEY: ${{ secrets.AMBITEST_READKEY }}
+        AMBITEST_WRITEKEY: ${{ secrets.AMBITEST_WRITEKEY }}
+        AMBITEST_DEVKEY: ${{ secrets.AMBITEST_DEVKEY }}
