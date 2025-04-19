@@ -60,6 +60,7 @@ func TestSenderSendTimePrecision(t *T) {
 	f := ambidata.NewFetcher(t.Config.Ch, t.Config.ReadKey)
 	s := ambidata.NewSender(t.Config.Ch, t.Config.WriteKey)
 
+	// "推測に基づく情報" 用のテスト
 	in := ambidata.Data{Created: time.Date(2006, 1, 2, 15, 4, 5, 999999999, time.UTC)}
 	want := ambidata.Data{Created: time.Date(2006, 1, 2, 15, 4, 5, 999000000, time.UTC)}
 
@@ -92,6 +93,7 @@ func TestSenderSendCmntSize(t *T) {
 	f := ambidata.NewFetcher(t.Config.Ch, t.Config.ReadKey)
 	s := ambidata.NewSender(t.Config.Ch, t.Config.WriteKey)
 
+	// "推測に基づく情報" 用のテスト
 	created := time.Date(2006, 1, 2, 15, 4, 5, 999000000, time.UTC)
 	inCmnt := strings.Repeat(".", 128)
 	wantCmnt := strings.Repeat(".", 64)
@@ -211,6 +213,7 @@ func TestSenderSendBulkTooLarge(t *T) {
 		Cmnt:    strings.Repeat("-", 64),
 	}
 
+	// "推測に基づく情報" 用のテスト
 	const maxlen = 258
 	arrOK := slices.Repeat([]ambidata.Data{data}, maxlen)
 	arrNG := slices.Repeat([]ambidata.Data{data}, maxlen+1)
@@ -349,6 +352,7 @@ func TestSenderSetHideNonexistent(t *T) {
 	f := ambidata.NewFetcher(t.Config.Ch, t.Config.ReadKey)
 	s := ambidata.NewSender(t.Config.Ch, t.Config.WriteKey)
 
+	// "推測に基づく情報" 用のテスト
 	sentCreated := time.Date(2006, 1, 2, 15, 4, 5, 999000000, time.UTC)
 	setCreated := time.Date(2006, 1, 2, 15, 4, 5, 998000000, time.UTC)
 
@@ -400,6 +404,7 @@ func TestSenderSetHideMultiple(t *T) {
 	f := ambidata.NewFetcher(t.Config.Ch, t.Config.ReadKey)
 	s := ambidata.NewSender(t.Config.Ch, t.Config.WriteKey)
 
+	// "推測に基づく情報" 用のテスト
 	created := time.Date(2006, 1, 2, 15, 4, 5, 999000000, time.UTC)
 	sent := []ambidata.Data{
 		{

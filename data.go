@@ -5,12 +5,14 @@ import (
 	"time"
 )
 
+// ChannelAccess はチャネルへのアクセス情報を保持する構造体です。
 type ChannelAccess struct {
 	ChannelInfo
-	ReadKey  string
-	WriteKey string
+	ReadKey  string // リードキー
+	WriteKey string // ライトキー
 }
 
+// ToLv1 は [ChannelAccess] から [ChannelAccessLv1] への変換を行います。
 func (ch *ChannelAccess) ToLv1() ChannelAccessLv1 {
 	return ChannelAccessLv1{
 		Ch:       ch.Ch,
@@ -18,57 +20,67 @@ func (ch *ChannelAccess) ToLv1() ChannelAccessLv1 {
 	}
 }
 
+// ChannelAccessLv1 はチャネルへのアクセス情報のうち、ID とライトキーのみを保持する構造体です。
 type ChannelAccessLv1 struct {
 	Ch       string
 	WriteKey string
 }
 
+// ChannelInfo はチャネルの詳細情報を保持する構造体です。
+//
+// 推測に基づく情報: チャネル情報の形式は公式ライブラリやリファレンスでは明示されていないため、
+// この構造体のフィールドの多くは本パッケージ開発者の推測に基づいています。
 type ChannelInfo struct {
-	Ch         string
-	User       string
-	Created    time.Time
-	Modified   time.Time
-	LastPost   time.Time
-	Charts     int
-	DataPerDay int
-	DCh        bool
-	ChName     string
-	ChDesc     string
-	D1         FieldInfo
-	D2         FieldInfo
-	D3         FieldInfo
-	D4         FieldInfo
-	D5         FieldInfo
-	D6         FieldInfo
-	D7         FieldInfo
-	D8         FieldInfo
-	Loc        Maybe[Location]
-	PhotoID    string
-	DevKeys    []string
-	Bd         string
-	LastData   LastData
+	Ch         string          // チャネルID
+	User       string          // ユーザーID
+	Created    time.Time       // チャネル作成日時
+	Modified   time.Time       // チャネル更新日時
+	LastPost   time.Time       // データの最終送信日時(一度も送信されていない場合はゼロ値)
+	Charts     int             // 不明
+	DataPerDay int             // データの一日あたりの平均数
+	DCh        bool            // 不明
+	ChName     string          // チャネル名
+	ChDesc     string          // チャネルの説明
+	D1         FieldInfo       // データ1
+	D2         FieldInfo       // データ2
+	D3         FieldInfo       // データ3
+	D4         FieldInfo       // データ4
+	D5         FieldInfo       // データ5
+	D6         FieldInfo       // データ6
+	D7         FieldInfo       // データ7
+	D8         FieldInfo       // データ8
+	Loc        Maybe[Location] // 位置情報
+	PhotoID    string          // 写真の Embed code
+	DevKeys    []string        // デバイスキー
+	Bd         string          // ボードID
+	LastData   LastData        // 最後に送信されたデータ
 }
 
+// FieldInfo はデータフィールドの情報を保持する構造体です。
 type FieldInfo struct {
-	Name  string
-	Color FieldColor
+	Name  string     // データ名
+	Color FieldColor // 色ID
 }
 
+// FieldColor はデータフィールドの色IDを表す型です。
+// [FieldColorToRGBA] 関数で  [color.RGBA] 値に変換できます。
 type FieldColor string
 
+// データフィールドに使用できる色IDの定義。
+// これらの色は Ambient のグラフや UI で使用されます。
 const (
-	FieldColorBlue    FieldColor = "1"
-	FieldColorRed     FieldColor = "2"
-	FieldColorOrange  FieldColor = "3"
-	FieldColorPurple  FieldColor = "4"
-	FieldColorGreen   FieldColor = "5"
-	FieldColorSkyBlue FieldColor = "6"
-	FieldColorPink    FieldColor = "7"
-	FieldColorBrown   FieldColor = "8"
-	FieldColorOlive   FieldColor = "9"
-	FieldColorCyan    FieldColor = "10"
-	FieldColorYellow  FieldColor = "11"
-	FieldColorBlack   FieldColor = "12"
+	FieldColorBlue    FieldColor = "1"  // #3B5998
+	FieldColorRed     FieldColor = "2"  // #DC3912
+	FieldColorOrange  FieldColor = "3"  // #FF9900
+	FieldColorPurple  FieldColor = "4"  // #990099
+	FieldColorGreen   FieldColor = "5"  // #109618
+	FieldColorSkyBlue FieldColor = "6"  // #0099C6
+	FieldColorPink    FieldColor = "7"  // #DD4477
+	FieldColorBrown   FieldColor = "8"  // #996633
+	FieldColorOlive   FieldColor = "9"  // #66AA00
+	FieldColorCyan    FieldColor = "10" // #00FFFF
+	FieldColorYellow  FieldColor = "11" // #FFFF00
+	FieldColorBlack   FieldColor = "12" // #000000
 )
 
 var colorMap = map[FieldColor]color.RGBA{
@@ -86,40 +98,52 @@ var colorMap = map[FieldColor]color.RGBA{
 	FieldColorBlack:   {0x00, 0x00, 0x00, 0xFF},
 }
 
-func FieldColorToRGBA(c FieldColor) (color.RGBA, bool) {
-	rgba, ok := colorMap[c]
-	return rgba, ok
+// FieldColorToRGBA は指定された [FieldColor] を [color.RGBA] 型の値に変換します。
+// 有効な色IDの場合、対応する [color.RGBA] 値を返し、ok は true に設定されます。
+// 無効な色IDの場合、ゼロ値の [color.RGBA] を返し、ok は false に設定されます。
+func FieldColorToRGBA(c FieldColor) (rgba color.RGBA, ok bool) {
+	rgba, ok = colorMap[c]
+	return
 }
 
+// LastData はチャネルに最後に送信されたデータを表す構造体です。
+//
+// チャネルに一度もデータが送信されていない場合、ID は空文字列になります。
 type LastData struct {
 	Data
 	ID string
 }
 
+// Data はチャネルに保存されるデータポイントを表す構造体です。
 type Data struct {
-	Created time.Time
-	D1      Maybe[float64]
-	D2      Maybe[float64]
-	D3      Maybe[float64]
-	D4      Maybe[float64]
-	D5      Maybe[float64]
-	D6      Maybe[float64]
-	D7      Maybe[float64]
-	D8      Maybe[float64]
-	Loc     Maybe[Location]
-	Cmnt    string
-	Hide    bool
+	Created time.Time       // データの生成時刻
+	D1      Maybe[float64]  // データ1
+	D2      Maybe[float64]  // データ2
+	D3      Maybe[float64]  // データ3
+	D4      Maybe[float64]  // データ4
+	D5      Maybe[float64]  // データ5
+	D6      Maybe[float64]  // データ6
+	D7      Maybe[float64]  // データ7
+	D8      Maybe[float64]  // データ8
+	Loc     Maybe[Location] // 位置情報
+	Cmnt    string          // コメント
+	Hide    bool            // 非表示フラグ
 }
 
+// Location は位置情報を表す構造体です。
 type Location struct {
-	Lat, Lng float64
+	Lat float64 // 緯度
+	Lng float64 // 経度
 }
 
+// Maybe はオプショナル値を表すジェネリック型です。
 type Maybe[T any] struct {
-	V  T
-	OK bool
+	V  T    // 値
+	OK bool // 値が存在する場合は true
 }
 
+// Just は値 v を含む [Maybe] 型を作成します。
+// 作成された [Maybe] 型は OK フィールドが true に設定されます。
 func Just[T any](v T) Maybe[T] {
 	return Maybe[T]{V: v, OK: true}
 }

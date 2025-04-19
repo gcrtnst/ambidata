@@ -1,7 +1,13 @@
 package ambidata
 
+// 状態表示チャートで使用する色。
+// データフィールドの値として送信することで、対応する色を状態表示チャートに表示できます。
+//
+// 詳細は [公式ドキュメント] を参照ください。
+//
+// [公式ドキュメント]: https://ambidata.io/docs/state/
 const (
-	StateColorNone = iota
+	StateColorNone = iota // 表示なし
 
 	StateColorBlack      // #000000
 	StateColorDarkGrey3  // #444444

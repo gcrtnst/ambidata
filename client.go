@@ -13,23 +13,43 @@ import (
 	"strings"
 )
 
+// Config 構造体で値を設定しなかった場合に使用されるデフォルト値。
 var (
-	DefaultScheme = "https"
-	DefaultHost   = "ambidata.io"
+	DefaultScheme = "https"       // [Config.Scheme] のデフォルト値
+	DefaultHost   = "ambidata.io" // [Config.Host] のデフォルト値
 )
 
+// ErrRequestEntityTooLarge はリクエストボディが大きすぎる場合に返されるエラーです。
+// 主に、 [Sender.SendBulk] メソッドに渡したデータが多すぎる場合に発生します。
 var ErrRequestEntityTooLarge = errors.New("request entity too large")
 
+// Config は HTTP 通信の設定を保持する構造体です。
+//
+// ゼロ値の Config 構造体は、デフォルトの設定を使用して Ambient に接続する有効な構成となります。
 type Config struct {
+	// Scheme はリクエストのスキームを指定します。
+	// 空文字列の場合は、 [DefaultScheme] が使用されます。
+	//
+	// TLS を使用できない環境では、"http" を指定してください。
 	Scheme string
-	Host   string
+
+	// Host はリクエストのホスト名を指定します。
+	// 空文字列の場合は、 [DefaultHost] が使用されます。
+	Host string
+
+	// Client は HTTP リクエストを送信するためのクライアントを指定します。
+	// nil の場合は、 [http.DefaultClient] が使用されます。
 	Client *http.Client
 }
 
+// APIError は API リクエストに関連するエラーを表す構造体です。
+//
+// クエリパラメータのうち、"userKey"、"readKey"、"writeKey" はフィルタリングされ、
+// Query フィールドから除外されます。
 type APIError struct {
-	Method string
-	Path   string
-	Query  url.Values
+	Method string     // 例: "GET"
+	Path   string     // 例: "/api/v2/channels/"
+	Query  url.Values // 例: url.Values{"devKey": []string{"02:00:00:00:00:01"}}
 	Err    error
 }
 
@@ -67,6 +87,10 @@ func (err *APIError) Unwrap() error {
 	return err.Err
 }
 
+// StatusCodeError は HTTP ステータスコードに関連するエラーを表す構造体です。
+// 200 OK 以外のステータスコードが返された場合に使用されます。
+//
+// 本パッケージから返される StatusCodeError は、全て [APIError] によってラップされています。
 type StatusCodeError struct {
 	StatusCode int
 }
