@@ -1,0 +1,24 @@
+name: Extended Tests
+
+on:
+  schedule:
+    cron: "0 19 1 * *"  # 04:00 JST on the 2nd of every month
+  workflow_dispatch:
+
+jobs:
+  ambitest-extended:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: 'stable'
+        check-latest: true
+    - run: go build -o $RUNNER_TEMP/ambitest -v ./internal/ambitest
+    - run: $RUNNER_TEMP/ambitest -all
+      env:
+        AMBITEST_CH: ${{ secrets.AMBITEST_CH }}
+        AMBITEST_USERKEY: ${{ secrets.AMBITEST_USERKEY }}
+        AMBITEST_READKEY: ${{ secrets.AMBITEST_READKEY }}
+        AMBITEST_WRITEKEY: ${{ secrets.AMBITEST_WRITEKEY }}
+        AMBITEST_DEVKEY: ${{ secrets.AMBITEST_DEVKEY }}
