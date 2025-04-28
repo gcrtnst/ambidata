@@ -17,7 +17,7 @@ func main() {
 
 func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 	var all bool
-	f := flag.NewFlagSet("ambitest", flag.ContinueOnError)
+	f := flag.NewFlagSet(Name, flag.ContinueOnError)
 	f.SetOutput(stderr)
 	f.BoolVar(&all, "all", false, "run all tests")
 
