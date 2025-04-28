@@ -2,7 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/gcrtnst/ambidata.svg)](https://pkg.go.dev/github.com/gcrtnst/ambidata)
 
-ambidata は、IoTデーター可視化サービス [Ambient](https://ambidata.io/) の Go 言語向け非公式クライアントライブラリです。
+ambidata は、IoTデータ可視化サービス [Ambient](https://ambidata.io/) の Go 言語向け非公式クライアントライブラリです。
 
 ## 特徴
 
