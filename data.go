@@ -63,7 +63,7 @@ type FieldInfo struct {
 }
 
 // FieldColor はデータフィールドの色IDを表す型です。
-// [FieldColorToRGBA] 関数で  [color.RGBA] 値に変換できます。
+// [FieldColor.ToRGBA] 関数で  [color.RGBA] 値に変換できます。
 type FieldColor string
 
 // データフィールドに使用できる色IDの定義。
@@ -98,10 +98,10 @@ var colorMap = map[FieldColor]color.RGBA{
 	FieldColorBlack:   {0x00, 0x00, 0x00, 0xFF},
 }
 
-// FieldColorToRGBA は指定された [FieldColor] を [color.RGBA] 型の値に変換します。
+// ToRGBA は指定された [FieldColor] を [color.RGBA] 型の値に変換します。
 // 有効な色IDの場合、対応する [color.RGBA] 値を返し、ok は true に設定されます。
 // 無効な色IDの場合、ゼロ値の [color.RGBA] を返し、ok は false に設定されます。
-func FieldColorToRGBA(c FieldColor) (rgba color.RGBA, ok bool) {
+func (c FieldColor) ToRGBA() (rgba color.RGBA, ok bool) {
 	rgba, ok = colorMap[c]
 	return
 }
