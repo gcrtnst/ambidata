@@ -63,7 +63,7 @@ func (m *Manager) GetDeviceChannelLv1(ctx context.Context, devKey string) (Chann
 // 部分的に削除する機能はありません。
 // Ambient サイトのチャネルページの「データー削除」ボタンと同じ動作をします。
 // チャネルそのものやチャネルの設定情報は削除されずに残ります。
-// 削除したデーターは復元できないので、注意してください。
+// 削除したデータは復元できないので、注意してください。
 func (m *Manager) DeleteData(ctx context.Context, ch string) error {
 	path := "/api/v2/channels/" + url.PathEscape(ch) + "/data"
 	return m.httpDelete(ctx, path, nil)
