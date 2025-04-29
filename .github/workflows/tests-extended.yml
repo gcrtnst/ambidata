@@ -5,6 +5,9 @@ on:
     - cron: "0 19 1 * *"  # 04:00 JST on the 2nd of every month
   workflow_dispatch:
 
+permissions:
+  contents: "read"
+
 jobs:
   ambitest-extended:
     runs-on: ubuntu-latest
