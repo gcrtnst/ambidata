@@ -280,58 +280,6 @@ func TestSenderSendErrStatus(t *testing.T) {
 	}
 }
 
-func TestSenderSendErrRequestEntityTooLarge(t *testing.T) {
-	const inCh = "83601"
-	const inWriteKey = "52e2cd7ddbfe2fed"
-	const inCode = 413
-	const inBody = `{"error":"Request entity too large","message":"送信されたデータサイズが大きすぎます。"}`
-	inData := Data{}
-	const wantMethod = "POST"
-	const wantPath = "/api/v2/channels/83601/data"
-	wantQuery := url.Values{}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	var handler http.HandlerFunc
-	handler = func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(inCode)
-		w.Write([]byte(inBody))
-	}
-
-	srv := httptest.NewServer(handler)
-	defer srv.Close()
-	srvURL, _ := url.Parse(srv.URL)
-
-	s := &Sender{
-		Ch:       inCh,
-		WriteKey: inWriteKey,
-		Config: &Config{
-			Scheme: srvURL.Scheme,
-			Host:   srvURL.Host,
-			Client: srv.Client(),
-		},
-	}
-
-	gotErr := s.Send(ctx, inData)
-	if gotAPIErr, ok := gotErr.(*APIError); !ok {
-		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
-	} else {
-		if gotAPIErr.Method != wantMethod {
-			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
-		}
-		if gotAPIErr.Path != wantPath {
-			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
-		}
-		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
-			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
-		}
-		if gotAPIErr.Err != ErrRequestEntityTooLarge {
-			t.Errorf("err:Err: expected ErrRequestEntityTooLarge, got %q", gotAPIErr.Err.Error())
-		}
-	}
-}
-
 func TestSenderSendBulkNormal(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
@@ -589,58 +537,6 @@ func TestSenderSendBulkErrStatus(t *testing.T) {
 	}
 }
 
-func TestSenderSendBulkErrRequestEntityTooLarge(t *testing.T) {
-	const inCh = "83601"
-	const inWriteKey = "52e2cd7ddbfe2fed"
-	const inCode = 413
-	const inBody = `{"error":"Request entity too large","message":"送信されたデータサイズが大きすぎます。"}`
-	inArr := []Data{{}}
-	const wantMethod = "POST"
-	const wantPath = "/api/v2/channels/83601/dataarray"
-	wantQuery := url.Values{}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	var handler http.HandlerFunc
-	handler = func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(inCode)
-		w.Write([]byte(inBody))
-	}
-
-	srv := httptest.NewServer(handler)
-	defer srv.Close()
-	srvURL, _ := url.Parse(srv.URL)
-
-	s := &Sender{
-		Ch:       inCh,
-		WriteKey: inWriteKey,
-		Config: &Config{
-			Scheme: srvURL.Scheme,
-			Host:   srvURL.Host,
-			Client: srv.Client(),
-		},
-	}
-
-	gotErr := s.SendBulk(ctx, inArr)
-	if gotAPIErr, ok := gotErr.(*APIError); !ok {
-		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
-	} else {
-		if gotAPIErr.Method != wantMethod {
-			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
-		}
-		if gotAPIErr.Path != wantPath {
-			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
-		}
-		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
-			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
-		}
-		if gotAPIErr.Err != ErrRequestEntityTooLarge {
-			t.Errorf("err:Err: expected ErrRequestEntityTooLarge, got %q", gotAPIErr.Err.Error())
-		}
-	}
-}
-
 func TestSenderSetCmntNormal(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
@@ -788,59 +684,6 @@ func TestSenderSetCmntErrStatus(t *testing.T) {
 	}
 }
 
-func TestSenderSetCmntErrRequestEntityTooLarge(t *testing.T) {
-	const inCh = "83601"
-	const inWriteKey = "52e2cd7ddbfe2fed"
-	inCreated := time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC)
-	const inCmnt = "comment"
-	const inCode = 413
-	const inBody = `{"error":"Request entity too large","message":"送信されたデータサイズが大きすぎます。"}`
-	const wantMethod = "PUT"
-	const wantPath = "/api/v2/channels/83601/data"
-	wantQuery := url.Values{}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	var handler http.HandlerFunc
-	handler = func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(inCode)
-		w.Write([]byte(inBody))
-	}
-
-	srv := httptest.NewServer(handler)
-	defer srv.Close()
-	srvURL, _ := url.Parse(srv.URL)
-
-	s := &Sender{
-		Ch:       inCh,
-		WriteKey: inWriteKey,
-		Config: &Config{
-			Scheme: srvURL.Scheme,
-			Host:   srvURL.Host,
-			Client: srv.Client(),
-		},
-	}
-
-	gotErr := s.SetCmnt(ctx, inCreated, inCmnt)
-	if gotAPIErr, ok := gotErr.(*APIError); !ok {
-		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
-	} else {
-		if gotAPIErr.Method != wantMethod {
-			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
-		}
-		if gotAPIErr.Path != wantPath {
-			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
-		}
-		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
-			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
-		}
-		if gotAPIErr.Err != ErrRequestEntityTooLarge {
-			t.Errorf("err:Err: expected ErrRequestEntityTooLarge, got %q", gotAPIErr.Err.Error())
-		}
-	}
-}
-
 func TestSenderSetHideNormal(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
@@ -984,59 +827,6 @@ func TestSenderSetHideErrStatus(t *testing.T) {
 			t.Errorf("err.Err: expected (*ambidata.StatusCodeError), got %T", gotAPIErr.Err)
 		} else if gotStatusErr.StatusCode != http.StatusNotFound {
 			t.Errorf("err.StatusCode: expected %d, got %d", http.StatusNotFound, gotStatusErr.StatusCode)
-		}
-	}
-}
-
-func TestSenderSetHideErrRequestEntityTooLarge(t *testing.T) {
-	const inCh = "83601"
-	const inWriteKey = "52e2cd7ddbfe2fed"
-	inCreated := time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC)
-	const inHide = true
-	const inCode = 413
-	const inBody = `{"error":"Request entity too large","message":"送信されたデータサイズが大きすぎます。"}`
-	const wantMethod = "PUT"
-	const wantPath = "/api/v2/channels/83601/data"
-	wantQuery := url.Values{}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	var handler http.HandlerFunc
-	handler = func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(inCode)
-		w.Write([]byte(inBody))
-	}
-
-	srv := httptest.NewServer(handler)
-	defer srv.Close()
-	srvURL, _ := url.Parse(srv.URL)
-
-	s := &Sender{
-		Ch:       inCh,
-		WriteKey: inWriteKey,
-		Config: &Config{
-			Scheme: srvURL.Scheme,
-			Host:   srvURL.Host,
-			Client: srv.Client(),
-		},
-	}
-
-	gotErr := s.SetHide(ctx, inCreated, inHide)
-	if gotAPIErr, ok := gotErr.(*APIError); !ok {
-		t.Errorf("err: expected (*ambidata.APIError), got %T", gotErr)
-	} else {
-		if gotAPIErr.Method != wantMethod {
-			t.Errorf("err.Method: expected %#v, got %#v", wantMethod, gotAPIErr.Method)
-		}
-		if gotAPIErr.Path != wantPath {
-			t.Errorf("err.Path: expected %#v, got %#v", wantPath, gotAPIErr.Path)
-		}
-		if diff := cmp.Diff(wantQuery, gotAPIErr.Query); diff != "" {
-			t.Errorf("err.Query: mismatch (-want, +got)\n%s", diff)
-		}
-		if gotAPIErr.Err != ErrRequestEntityTooLarge {
-			t.Errorf("err:Err: expected ErrRequestEntityTooLarge, got %q", gotAPIErr.Err.Error())
 		}
 	}
 }

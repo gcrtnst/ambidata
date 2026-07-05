@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"math"
+	"net/http"
 	"slices"
 	"strings"
 	"time"
@@ -241,7 +242,7 @@ func TestSenderSendBulkTooLarge(t *T) {
 	t.PostWait()
 	errSendNG := s.SendBulk(ctx, arrNG)
 	t.PostDone()
-	if !errors.Is(errSendNG, ambidata.ErrRequestEntityTooLarge) {
+	if e := (*ambidata.StatusCodeError)(nil); !errors.As(errSendNG, &e) || e.StatusCode != http.StatusRequestEntityTooLarge {
 		t.Errorf("errSendNG: expected ErrRequestEntityTooLarge, got %#v", errSendNG.Error())
 		return
 	}

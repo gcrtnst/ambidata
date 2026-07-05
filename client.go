@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,10 +17,6 @@ var (
 	DefaultScheme = "https"       // [Config.Scheme] のデフォルト値
 	DefaultHost   = "ambidata.io" // [Config.Host] のデフォルト値
 )
-
-// ErrRequestEntityTooLarge はリクエストボディが大きすぎる場合に返されるエラーです。
-// 主に、 [Sender.SendBulk] メソッドに渡したデータが多すぎる場合に発生します。
-var ErrRequestEntityTooLarge = errors.New("request entity too large")
 
 // Config は HTTP 通信の設定を保持する構造体です。
 //
@@ -235,11 +230,6 @@ func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
 	}
 	if resp.StatusCode != http.StatusOK {
 		_ = closeResponse(resp)
-
-		if resp.StatusCode == http.StatusRequestEntityTooLarge {
-			err := newAPIError(req, ErrRequestEntityTooLarge)
-			return nil, err
-		}
 
 		var err error
 		err = &StatusCodeError{StatusCode: resp.StatusCode}
