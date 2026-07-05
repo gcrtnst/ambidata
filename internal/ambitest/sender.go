@@ -228,7 +228,7 @@ func TestSenderSendBulkTooLarge(t *T) {
 	errSendOK := s.SendBulk(ctx, arrOK)
 	t.PostDone()
 	if errSendOK != nil {
-		t.Errorf("errSendOK: expected nil, got %#v", errSendOK)
+		t.Errorf("errSendOK: expected nil, got %#v", errSendOK.Error())
 		return
 	}
 
@@ -242,7 +242,7 @@ func TestSenderSendBulkTooLarge(t *T) {
 	errSendNG := s.SendBulk(ctx, arrNG)
 	t.PostDone()
 	if !errors.Is(errSendNG, ambidata.ErrRequestEntityTooLarge) {
-		t.Errorf("errSendNG: expected ErrRequestEntityTooLarge, got %#v", errSendNG)
+		t.Errorf("errSendNG: expected ErrRequestEntityTooLarge, got %#v", errSendNG.Error())
 		return
 	}
 }
