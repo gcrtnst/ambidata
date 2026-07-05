@@ -283,8 +283,8 @@ func TestSenderSendErrStatus(t *testing.T) {
 func TestSenderSendErrRequestEntityTooLarge(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
-	const inCode = 200
-	const inBody = "request entity too large"
+	const inCode = 413
+	const inBody = `{"error":"Request entity too large","message":"送信されたデータサイズが大きすぎます。"}`
 	inData := Data{}
 	const wantMethod = "POST"
 	const wantPath = "/api/v2/channels/83601/data"
@@ -592,8 +592,8 @@ func TestSenderSendBulkErrStatus(t *testing.T) {
 func TestSenderSendBulkErrRequestEntityTooLarge(t *testing.T) {
 	const inCh = "83601"
 	const inWriteKey = "52e2cd7ddbfe2fed"
-	const inCode = 200
-	const inBody = "request entity too large"
+	const inCode = 413
+	const inBody = `{"error":"Request entity too large","message":"送信されたデータサイズが大きすぎます。"}`
 	inArr := []Data{{}}
 	const wantMethod = "POST"
 	const wantPath = "/api/v2/channels/83601/dataarray"
@@ -793,8 +793,8 @@ func TestSenderSetCmntErrRequestEntityTooLarge(t *testing.T) {
 	const inWriteKey = "52e2cd7ddbfe2fed"
 	inCreated := time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC)
 	const inCmnt = "comment"
-	const inCode = 200
-	const inBody = "request entity too large"
+	const inCode = 413
+	const inBody = `{"error":"Request entity too large","message":"送信されたデータサイズが大きすぎます。"}`
 	const wantMethod = "PUT"
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{}
@@ -993,8 +993,8 @@ func TestSenderSetHideErrRequestEntityTooLarge(t *testing.T) {
 	const inWriteKey = "52e2cd7ddbfe2fed"
 	inCreated := time.Date(1970, 1, 1, 1, 0, 0, 0, time.UTC)
 	const inHide = true
-	const inCode = 200
-	const inBody = "request entity too large"
+	const inCode = 413
+	const inBody = `{"error":"Request entity too large","message":"送信されたデータサイズが大きすぎます。"}`
 	const wantMethod = "PUT"
 	const wantPath = "/api/v2/channels/83601/data"
 	wantQuery := url.Values{}

@@ -122,7 +122,7 @@ func httpGet(ctx context.Context, cfg *Config, path string, query url.Values, v 
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close() // ignore error
+	defer closeResponse(resp) // ignore error
 
 	d := json.NewDecoder(resp.Body)
 	err = d.Decode(v)
@@ -155,7 +155,8 @@ func httpDelete(ctx context.Context, cfg *Config, path string, query url.Values)
 	if err != nil {
 		return err
 	}
-	return httpReadError(req, resp.Body)
+	_ = closeResponse(resp)
+	return nil
 }
 
 func httpSend(ctx context.Context, cfg *Config, method string, path string, v any) error {
@@ -176,7 +177,8 @@ func httpSend(ctx context.Context, cfg *Config, method string, path string, v an
 	if err != nil {
 		return err
 	}
-	return httpReadError(req, resp.Body)
+	_ = closeResponse(resp)
+	return nil
 }
 
 type httpRequest struct {
@@ -232,7 +234,12 @@ func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		_ = resp.Body.Close()
+		_ = closeResponse(resp)
+
+		if resp.StatusCode == http.StatusRequestEntityTooLarge {
+			err := newAPIError(req, ErrRequestEntityTooLarge)
+			return nil, err
+		}
 
 		var err error
 		err = &StatusCodeError{StatusCode: resp.StatusCode}
@@ -242,28 +249,14 @@ func httpDo(ctx context.Context, req *httpRequest) (*http.Response, error) {
 	return resp, nil
 }
 
-func httpReadError(req *httpRequest, body io.ReadCloser) error {
-	defer body.Close() // ignore error
+func closeResponse(resp *http.Response) (err error) {
+	defer func() {
+		err = resp.Body.Close()
+	}()
 
-	var err error
-	const str = "request entity too large"
-	buf := make([]byte, len(str))
-
-	_, err = io.ReadFull(body, buf)
-	if err != nil {
-		if err == io.EOF || err == io.ErrUnexpectedEOF {
-			return nil
-		}
-		return newAPIError(req, err)
-	}
-
-	_, err = body.Read(buf[len(str):])
-	if err != io.EOF {
-		return nil
-	}
-
-	if string(buf) == str {
-		return newAPIError(req, ErrRequestEntityTooLarge)
+	const maxBodySlurpSize = 2 << 10
+	if (resp.Request != nil && resp.Request.Method == "HEAD") || (resp.ContentLength <= maxBodySlurpSize) {
+		_, _ = io.CopyN(io.Discard, resp.Body, maxBodySlurpSize)
 	}
 	return nil
 }
